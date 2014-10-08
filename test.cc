@@ -68,11 +68,11 @@ int main() {
 			string ip_addr_localhost = "127.0.0.1";
 			string ip_addr_orange_server = "161.106.2.57";
 			string ip_addr_vps = "198.50.151.105";
-			string ip_addr_used = ip_addr_vps;
+			string ip_addr_used = ip_addr_orange_server;
 			deque<string> urls;
-			//urls.push_back("leopard.html");
-			//urls.push_back("waves.html");
-			urls.push_back("index.html");
+			urls.push_back("leopard.html");
+			urls.push_back("waves.html");
+			//urls.push_back("index.html");
 
 			// We use the method std::to_string(), so  we need to add --std=c++0x
 			// in CXXFLAGS (see Makefile)
@@ -136,7 +136,7 @@ int main() {
 
 				// Run the command |times_to_reach| times
 				for (int i = 0; i < times_to_reach; ++i) {
-					printf("%s\n", new_command.c_str());
+//					printf("%s\n", new_command.c_str());
 					system(new_command.c_str());
 				}
 
