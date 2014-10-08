@@ -28,6 +28,7 @@ int main() {
 
 			printf("Executing: rm -rf *log\n");
 			system("rm -rf *log");
+
 			printf("Executing: rm -rf ~/.cache/chromium\n");
 			system("rm -rf ~/.cache/chromium");
 
@@ -62,17 +63,18 @@ int main() {
 			string scheme_http = "http://";
 			string scheme_https = "https://";
 			string scheme_used;
-			string port_http = ":80/";
-			string port_https = ":443/";
+			string port_http = ":80/page_news/";
+			string port_https = ":443/page_news/";
 			string port_used;
 			string ip_addr_localhost = "127.0.0.1";
 			string ip_addr_orange_server = "161.106.2.57";
 			string ip_addr_vps = "198.50.151.105";
 			string ip_addr_used = ip_addr_orange_server;
 			deque<string> urls;
-			urls.push_back("leopard.html");
-			urls.push_back("waves.html");
+			//urls.push_back("leopard.html");
+			//urls.push_back("waves.html");
 			//urls.push_back("index.html");
+			urls.push_back("index.html");
 
 			// We use the method std::to_string(), so  we need to add --std=c++0x
 			// in CXXFLAGS (see Makefile)
