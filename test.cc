@@ -9,13 +9,16 @@ using namespace std;
 
 int main() {
 	
+	printf("Executing: rm -rf *log\n");
 	system("rm -rf *log");
+	printf("Executing: rm -rf ~/.cache/chromium\n");
+	system("rm -rf ~/.cache/chromium");
 
 	int set_incognito = 1;
 	int set_no_extensions = 1;
 	int set_ignore_certificate_errors = 1;
 	int set_enable_spdy4 = 1;
-	int set_h2 = 0; // 1 implies h2, and 0 implies h2c
+	int is_secure = 0; // 1 implies TLS, 0 implies cleartext TCP
 	
 	// Time to wait for the webpage to load in seconds.
 	int sleep_time = 10;
@@ -60,10 +63,11 @@ int main() {
 	string ip_addr_localhost = "127.0.0.1";
 	string ip_addr_orange_server = "161.106.2.57";
 	string ip_addr_vps = "198.50.151.105";
-	string ip_addr_used = ip_addr_localhost;
+	string ip_addr_used = ip_addr_orange_server;
 	deque<string> urls;
-	urls.push_back("leopard.html");
-	urls.push_back("waves.html");
+	//urls.push_back("leopard.html");
+	//urls.push_back("waves.html");
+	urls.push_back("index.html");
 
 	// We use the method std::to_string(), so  we need to add --std=c++0x
 	// in CXXFLAGS (see Makefile)
@@ -84,13 +88,23 @@ int main() {
 		command += ignore_certificate_errors;
 	if (set_enable_spdy4) {
 		command += enable_spdy4;
-		if (set_h2) {
+		if (is_secure) {
 			command += h2;
 			scheme_used = scheme_https;
 			port_used = port_https;
 		}
 		else {
 			command += h2c;
+			scheme_used = scheme_http;
+			port_used = port_http;
+		}
+	}
+	else  {
+		if (is_secure) {
+			scheme_used = scheme_https;
+			port_used = port_https;
+		}
+		else {
 			scheme_used = scheme_http;
 			port_used = port_http;
 		}
@@ -117,6 +131,7 @@ int main() {
 
 		// Run the command |times_to_reach| times
 		for (int i = 0; i < times_to_reach; ++i) {
+			printf("%s\n", new_command.c_str());
 			system(new_command.c_str());
 		}
 
