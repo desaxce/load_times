@@ -8,19 +8,21 @@
 using namespace std;
 
 int main() {
+	
+	system("rm -rf *log");
 
 	int set_incognito = 1;
 	int set_no_extensions = 1;
 	int set_ignore_certificate_errors = 1;
-	int set_h2 = 0;
-	int set_h2c = 1;
+	int set_enable_spdy4 = 1;
+	int set_h2 = 0; // 1 implies h2, and 0 implies h2c
 	
 	// Time to wait for the webpage to load in seconds.
 	int sleep_time = 10;
 
 	// Number of times you want to reach the webpage. The higher, the more
 	// accurate will be page loading times.
-	int times_to_reach = 10;
+	int times_to_reach = 1;
 
 	// Chromium executable.
 	// TODO: Fix the PATH to the executable
@@ -39,12 +41,26 @@ int main() {
 	// avoided if the server certificate is inserted in the browser
 	string ignore_certificate_errors = "--ignore-certificate-errors ";
 
-	// Says if we should use SPDY4 aka HTTP/2, and indicates whether we
-	// use h2 (with TLS) or h2c (directly on TCP).
+	// Enables the use of SPDY4 (HTTP/2)
+	string enable_spdy4 = "--enable-spdy4 ";
+
+	// Always use HTTP/2 (SPDY4), and use it over TLS
 	string h2 = "--use-spdy=ssl ";
+
+	// Always use HTTP/2 (SPDY4), and use it over TCP
 	string h2c = "--use-spdy=no-ssl ";
 
 	// Urls of the website on which we wish to test page loading times.
+	string scheme_http = "http://";
+	string scheme_https = "https://";
+	string scheme_used;
+	string port_http = ":80/";
+	string port_https = ":443/";
+	string port_used;
+	string ip_addr_localhost = "127.0.0.1";
+	string ip_addr_orange_server = "161.106.2.57";
+	string ip_addr_vps = "198.50.151.105";
+	string ip_addr_used = ip_addr_localhost;
 	deque<string> urls;
 	urls.push_back("leopard.html");
 	urls.push_back("waves.html");
@@ -60,23 +76,28 @@ int main() {
 	// Command line to execute.
 	string command = chromium;
 	
-	if (set_incognito) {
+	if (set_incognito)
 		command += incognito;
-	}
-	if (set_no_extensions) {
+	if (set_no_extensions)
 		command += no_extensions;
-	}
-	if (set_ignore_certificate_errors) {
+	if (set_ignore_certificate_errors)
 		command += ignore_certificate_errors;
-	}
-	if (set_h2) {
-		command += h2;
-	}
-	else if (set_h2c) { // I put "else if" to avoid any conflict wrt h2.
-		command += h2c;
+	if (set_enable_spdy4) {
+		command += enable_spdy4;
+		if (set_h2) {
+			command += h2;
+			scheme_used = scheme_https;
+			port_used = port_https;
+		}
+		else {
+			command += h2c;
+			scheme_used = scheme_http;
+			port_used = port_http;
+		}
 	}
 
-	command += "http://127.0.0.1:443/";
+	command += scheme_used + ip_addr_used + port_used;
+
 	for (deque<string>::const_iterator it = urls.begin(); it != urls.end();
 		 ++it) {
 		string new_command = command;
