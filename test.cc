@@ -7,8 +7,28 @@
 
 using namespace std;
 
-int main() {
+
+// TODO: Split this function in several parts: make it modular
+int main(int argc, char* argv[]) {
+	int verbose = 0;
 	
+	// Handles command line arguments
+	if (argc > 2) {
+		printf("Usage: %s [-v]\n", argv[0]);
+		return 1;
+	}
+	if (argc == 2) {
+		string argv1 = argv[1];
+		if (argv1 == "-v") {
+			verbose = 1;
+		}
+		else {
+			printf("Wrong argument\n");
+			return 1;
+		}
+	}
+
+	// TODO: add a test.h file containing all the non necessary stuff
 	int set_incognito = 1;
 	int set_no_extensions = 1;
 	int set_ignore_certificate_errors = 1;
@@ -63,8 +83,8 @@ int main() {
 			string scheme_http = "http://";
 			string scheme_https = "https://";
 			string scheme_used;
-			string port_http = ":80/page_news/";
-			string port_https = ":443/page_news/";
+			string port_http = ":80/";
+			string port_https = ":443/";
 			string port_used;
 			string ip_addr_localhost = "127.0.0.1";
 			string ip_addr_orange_server = "161.106.2.57";
@@ -138,7 +158,8 @@ int main() {
 
 				// Run the command |times_to_reach| times
 				for (int i = 0; i < times_to_reach; ++i) {
-//					printf("%s\n", new_command.c_str());
+					if (verbose)
+						printf("%s\n", new_command.c_str());
 					system(new_command.c_str());
 				}
 
