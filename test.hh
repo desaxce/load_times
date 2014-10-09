@@ -36,7 +36,17 @@ string h2 = "--use-spdy=ssl ";
 // Always use HTTP/2, and use it over TCP
 string h2c = "--use-spdy=no-ssl ";
 
+// Usual scheme and ports for http and https
 string scheme_http = "http://";
 string scheme_https = "https://";
 string port_http = ":80/";
 string port_https = ":443/";
+
+// Machine IP address on which we run our test
+string ip_addr_localhost = "127.0.0.1";
+string ip_addr_orange_server = "161.106.2.57";
+string ip_addr_vps = "198.50.151.105";
+
+// Kills last launched background process. TERM option to close "friendly".
+string kill_last_bg_process = "kill -TERM $! ";
+

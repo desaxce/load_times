@@ -32,7 +32,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Time to wait for the webpage to load in seconds.
+	// Method std::to_string() requires --std=c++0x compilation flag
 	int sleep_time = 20;
+	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Number of times you want to reach the webpage. The higher, the more
 	// accurate will be page loading times.
@@ -44,35 +46,29 @@ int main(int argc, char* argv[]) {
 	for (http2 = 0; http2 < 2; ++http2) {
 		for (is_secure = 0; is_secure < 2; ++is_secure) {
 
-			printf("Executing: rm -rf *log\n");
+			// Cleaning up log files
+			if (verbose)
+				printf("Executing: rm -rf *log\n");
 			system("rm -rf *log");
-
-			printf("Executing: rm -rf ~/.cache/chromium\n");
+			// Cleaning up the cache
+			if (verbose)
+				printf("Executing: rm -rf ~/.cache/chromium\n");
 			system("rm -rf ~/.cache/chromium");
-
-
-			// Urls of the website on which we wish to test page loading times.
-			string scheme_used;
-			string port_used;
-			string ip_addr_localhost = "127.0.0.1";
-			string ip_addr_orange_server = "161.106.2.57";
-			string ip_addr_vps = "198.50.151.105";
-			string ip_addr_used = ip_addr_localhost;
-			deque<string> urls;
-			//urls.push_back("leopard.html");
-			//urls.push_back("waves.html");
-			urls.push_back("index.html");
-
-			// Method std::to_string() requires --std=c++0x compilation flag
-			string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
-
-			// Kills last launched background process.
-			// TERM option used to "friendly" close an application.
-			string kill_last_bg_process = "kill -TERM $! ";
 
 			// Command line to execute.
 			string command = chromium;
+
+			// Define url to reach 
+			string scheme_used;
+			string port_used;
+			string ip_addr_used = ip_addr_localhost;
+
+			// List of files (websites) to test
+			deque<string> urls;
+			urls.push_back("index.html");
+
 			
+			// Setting options
 			if (set_incognito)
 				command += incognito;
 			if (set_no_extensions)
@@ -81,48 +77,40 @@ int main(int argc, char* argv[]) {
 				command += ignore_certificate_errors;
 			if (http2) {
 				command += enable_spdy4;
-				if (is_secure) {
+				if (is_secure)
 					command += h2;
-					scheme_used = scheme_https;
-					port_used = port_https;
-				}
-				else {
+				else 
 					command += h2c;
-					scheme_used = scheme_http;
-					port_used = port_http;
-				}
 			}
-			else  {
-				if (is_secure) {
-					scheme_used = scheme_https;
-					port_used = port_https;
-				}
-				else {
-					scheme_used = scheme_http;
-					port_used = port_http;
-				}
+
+			// Setting the url
+			if (is_secure) {
+				scheme_used = scheme_https;
+				port_used = port_https;
+			}
+			else {
+				scheme_used = scheme_http;
+				port_used = port_http;
 			}
 
 			command += scheme_used + ip_addr_used + port_used;
 
-			for (deque<string>::const_iterator it = urls.begin(); it != urls.end();
-				 ++it) {
+			for (deque<string>::const_iterator it = urls.begin(); 
+					it != urls.end(); ++it) {
+
 				string new_command = command;
 				new_command += *it;
 				string log_file = *it + ".log";
 				string log1_file = *it + "1.log";
 				string log2_file = *it + "2.log";
 
-				// Log stderr to file
+				// Log stderr to log_file
 				new_command += " >> " + log_file + " 2>&1 ";
 				
-				// Add a timer (sleep) until the page loads
 				new_command += "& " + sleep_cmd;
 
-				// Kills the last launched background process (that is chromium!).
 				new_command += "&& " + kill_last_bg_process;
 
-				// Run the command |times_to_reach| times
 				for (int i = 0; i < times_to_reach; ++i) {
 					if (verbose)
 						printf("%s\n", new_command.c_str());
@@ -133,7 +121,8 @@ int main(int argc, char* argv[]) {
 						log_file + " > " + log1_file).c_str());
 				system(("cat " + log1_file + " | awk '{print $3}' > " +
 						log2_file).c_str());
-				
+			
+				// Computing average loading times
 				string line;	
 				ifstream myfile(log2_file);
 				if (myfile.is_open()) {
@@ -153,7 +142,7 @@ int main(int argc, char* argv[]) {
 						   log_file.c_str(), loading_time/times_to_reach);
 				}
 				else {
-					cout << "Unable to open file";
+					printf("Unable to open file\n");
 				}
 			}
 		}
