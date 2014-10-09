@@ -9,6 +9,14 @@ using namespace std;
 
 
 // TODO: Split this function in several parts: make it modular
+
+// TODO: Change the display mechanism to HTTP, HTTPS, HTTP/2 
+//		 instead of spdy4 = {0, 1} and is_secure = {0, 1}.
+//		 Also change the name of set_enable_spdy4
+
+// TODO: Handle several types of url no matter what the format.
+//		 Might have to change the name of the log files.
+
 int main(int argc, char* argv[]) {
 	int verbose = 0;
 	
@@ -89,11 +97,10 @@ int main(int argc, char* argv[]) {
 			string ip_addr_localhost = "127.0.0.1";
 			string ip_addr_orange_server = "161.106.2.57";
 			string ip_addr_vps = "198.50.151.105";
-			string ip_addr_used = ip_addr_orange_server;
+			string ip_addr_used = ip_addr_localhost;
 			deque<string> urls;
 			//urls.push_back("leopard.html");
 			//urls.push_back("waves.html");
-			//urls.push_back("index.html");
 			urls.push_back("index.html");
 
 			// We use the method std::to_string(), so  we need to add --std=c++0x
