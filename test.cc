@@ -1,18 +1,13 @@
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h> 
-#include <deque>
-#include <fstream>
-
-using namespace std;
+#ifndef TEST_HH
+	#include "test.hh"
+	#define TEST_HH
+#endif
 
 
 // TODO: Split this function in several parts: make it modular
 
 // TODO: Change the display mechanism to HTTP, HTTPS, HTTP/2 
 //		 instead of spdy4 = {0, 1} and is_secure = {0, 1}.
-//		 Also change the name of set_enable_spdy4
 
 // TODO: Handle several types of url no matter what the format.
 //		 Might have to change the name of the log files.
@@ -36,11 +31,6 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	// TODO: add a test.h file containing all the non necessary stuff
-	int set_incognito = 1;
-	int set_no_extensions = 1;
-	int set_ignore_certificate_errors = 1;
-	
 	// Time to wait for the webpage to load in seconds.
 	int sleep_time = 20;
 
@@ -61,38 +51,8 @@ int main(int argc, char* argv[]) {
 			system("rm -rf ~/.cache/chromium");
 
 
-			// Chromium executable.
-			// TODO: Fix the PATH to the executable
-			string chromium= "../src/out/Debug/chrome ";
-
-			// Chromium does not automatically connect to certain sites like
-			// google.fr; also chromium does not use caching.
-			string incognito = "--incognito ";
-
-			// Removes annoying connection to 
-			// chrome://extensions/.../background_page.html.
-			string no_extensions = "--disable-extensions \
-				--disable-component-extensions-with-background-pages ";
-
-			// Skips when there is a non-recognized certificat. This can be 
-			// avoided if the server certificate is inserted in the browser
-			string ignore_certificate_errors = "--ignore-certificate-errors ";
-
-			// Enables the use of SPDY4 (HTTP/2)
-			string enable_spdy4 = "--enable-spdy4 ";
-
-			// Always use HTTP/2 (SPDY4), and use it over TLS
-			string h2 = "--use-spdy=ssl ";
-
-			// Always use HTTP/2 (SPDY4), and use it over TCP
-			string h2c = "--use-spdy=no-ssl ";
-
 			// Urls of the website on which we wish to test page loading times.
-			string scheme_http = "http://";
-			string scheme_https = "https://";
 			string scheme_used;
-			string port_http = ":80/";
-			string port_https = ":443/";
 			string port_used;
 			string ip_addr_localhost = "127.0.0.1";
 			string ip_addr_orange_server = "161.106.2.57";
@@ -103,8 +63,7 @@ int main(int argc, char* argv[]) {
 			//urls.push_back("waves.html");
 			urls.push_back("index.html");
 
-			// We use the method std::to_string(), so  we need to add --std=c++0x
-			// in CXXFLAGS (see Makefile)
+			// Method std::to_string() requires --std=c++0x compilation flag
 			string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 			// Kills last launched background process.
