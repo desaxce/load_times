@@ -48,10 +48,10 @@ int main(int argc, char* argv[]) {
 	// accurate will be page loading times.
 	int times_to_reach = 1;
 
-	int set_enable_spdy4 = 0;
+	int http2 = 0;
 	int is_secure = 0; // 1 implies TLS, 0 implies cleartext TCP
 
-	for (set_enable_spdy4 = 0; set_enable_spdy4 < 2; ++set_enable_spdy4) {
+	for (http2 = 0; http2 < 2; ++http2) {
 		for (is_secure = 0; is_secure < 2; ++is_secure) {
 
 			printf("Executing: rm -rf *log\n");
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
 				command += no_extensions;
 			if (set_ignore_certificate_errors)
 				command += ignore_certificate_errors;
-			if (set_enable_spdy4) {
+			if (http2) {
 				command += enable_spdy4;
 				if (is_secure) {
 					command += h2;
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
 						loading_time += end-start;
 					}
 					myfile.close();
-					printf("For spdy4 = %d and is_secure = %d:\n", set_enable_spdy4, 
+					printf("For spdy4 = %d and is_secure = %d:\n", http2, 
 						   is_secure);
 					printf("\tAverage loading time for %s = %f\n", 
 						   log_file.c_str(), loading_time/times_to_reach);
