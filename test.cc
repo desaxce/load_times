@@ -6,9 +6,6 @@
 
 // TODO: Split this function in several parts: make it modular
 
-// TODO: Change the display mechanism to HTTP, HTTPS, HTTP/2 
-//		 instead of spdy4 = {0, 1} and is_secure = {0, 1}.
-
 // TODO: Handle several types of url no matter what the format.
 //		 Might have to change the name of the log files.
 
@@ -65,7 +62,8 @@ int main(int argc, char* argv[]) {
 
 			// List of files (websites) to test
 			deque<string> urls;
-			urls.push_back("index.html");
+			urls.push_back("test.html");
+			// urls.push_back("waves.html");
 
 			
 			// Setting options
@@ -136,10 +134,20 @@ int main(int argc, char* argv[]) {
 						loading_time += end-start;
 					}
 					myfile.close();
-					printf("For spdy4 = %d and is_secure = %d:\n", http2, 
-						   is_secure);
-					printf("\tAverage loading time for %s = %f\n", 
-						   log_file.c_str(), loading_time/times_to_reach);
+					if (http2) {
+						if (is_secure)
+							printf("HTTP/2 over TLS:\n");
+						else
+							printf("HTTP/2 over TCP:\n");
+					}
+					else {
+						if (is_secure)
+							printf("HTTPS:\n");
+						else
+							printf("HTTP:\n");
+					}
+					printf("\t%s = %f\n", 
+						   (*it).c_str(), loading_time/times_to_reach);
 				}
 				else {
 					printf("Unable to open file\n");
