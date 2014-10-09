@@ -46,8 +46,8 @@ string h2c = "--use-spdy=no-ssl ";
 // Usual scheme and ports for http and https
 string scheme_http = "http://";
 string scheme_https = "https://";
-string port_http = ":80/page_shopping/";
-string port_https = ":443/page_shopping/";
+string port_http = ":80/laposte/";
+string port_https = ":443/laposte/";
 
 // Machine IP address on which we run our test
 string ip_addr_localhost = "127.0.0.1";

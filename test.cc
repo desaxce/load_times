@@ -30,12 +30,12 @@ int main(int argc, char* argv[]) {
 
 	// Time to wait for the webpage to load in seconds.
 	// Method std::to_string() requires --std=c++0x compilation flag
-	int sleep_time = 30;
+	int sleep_time = 20;
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Number of times you want to reach the webpage. The higher, the more
 	// accurate will be page loading times.
-	int times_to_reach = 30;
+	int times_to_reach = 1;
 
 	int http2 = 0;
 	int is_secure = 0; // 1 implies TLS, 0 implies cleartext TCP
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 	deque<string> urls;
 	// urls.push_back("test.html");
 	// urls.push_back("waves.html");
-	urls.push_back("index1.html");
+	urls.push_back("index.html");
 
 	for (deque<string>::const_iterator it = urls.begin(); 
 			it != urls.end(); ++it) {
