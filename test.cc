@@ -30,71 +30,77 @@ int main(int argc, char* argv[]) {
 
 	// Time to wait for the webpage to load in seconds.
 	// Method std::to_string() requires --std=c++0x compilation flag
-	int sleep_time = 20;
+	int sleep_time = 30;
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Number of times you want to reach the webpage. The higher, the more
 	// accurate will be page loading times.
-	int times_to_reach = 1;
+	int times_to_reach = 30;
 
 	int http2 = 0;
 	int is_secure = 0; // 1 implies TLS, 0 implies cleartext TCP
 
-	for (http2 = 0; http2 < 2; ++http2) {
-		for (is_secure = 0; is_secure < 2; ++is_secure) {
+	// List of files (websites) to test
+	deque<string> urls;
+	// urls.push_back("test.html");
+	// urls.push_back("waves.html");
+	urls.push_back("index1.html");
 
-			// Cleaning up log files
-			if (verbose)
-				printf("Executing: rm -rf *log\n");
-			system("rm -rf *log");
-			// Cleaning up the cache
-			if (verbose)
-				printf("Executing: rm -rf ~/.cache/chromium\n");
-			system("rm -rf ~/.cache/chromium");
+	for (deque<string>::const_iterator it = urls.begin(); 
+			it != urls.end(); ++it) {
 
-			// Command line to execute.
-			string command = chromium;
+		printf("%s\n", (*it).c_str());
 
-			// Define url to reach 
-			string scheme_used;
-			string port_used;
-			string ip_addr_used = ip_addr_localhost;
+		for (http2 = 0; http2 < 2; ++http2) {
+			for (is_secure = 0; is_secure < 2; ++is_secure) {
 
-			// List of files (websites) to test
-			deque<string> urls;
-			urls.push_back("test.html");
-			// urls.push_back("waves.html");
+				// Cleaning up log files
+				if (verbose)
+					printf("Executing: rm -rf *log\n");
+				system("rm -rf *log");
+				// Cleaning up the cache
+				if (verbose)
+					printf("Executing: rm -rf ~/.cache/chromium\n");
+				system("rm -rf ~/.cache/chromium");
 
-			
-			// Setting options
-			if (set_incognito)
-				command += incognito;
-			if (set_no_extensions)
-				command += no_extensions;
-			if (set_ignore_certificate_errors)
-				command += ignore_certificate_errors;
-			if (http2) {
-				command += enable_spdy4;
-				if (is_secure)
-					command += h2;
-				else 
-					command += h2c;
-			}
+				// Command line to execute.
+				string command = chromium;
 
-			// Setting the url
-			if (is_secure) {
-				scheme_used = scheme_https;
-				port_used = port_https;
-			}
-			else {
-				scheme_used = scheme_http;
-				port_used = port_http;
-			}
+				// Define url to reach 
+				string scheme_used;
+				string port_used;
+				string ip_addr_used = ip_addr_localhost;
 
-			command += scheme_used + ip_addr_used + port_used;
+				// Setting options
+				if (set_incognito)
+					command += incognito;
+				if (set_no_extensions)
+					command += no_extensions;
+				if (set_ignore_certificate_errors)
+					command += ignore_certificate_errors;
+				if (set_disable_cache)
+					command += disable_cache;
+				if (http2) {
+					command += enable_spdy4;
+					if (is_secure)
+						command += h2;
+					else 
+						command += h2c;
+				}
 
-			for (deque<string>::const_iterator it = urls.begin(); 
-					it != urls.end(); ++it) {
+				// Setting the url
+				if (is_secure) {
+					scheme_used = scheme_https;
+					port_used = port_https;
+				}
+				else {
+					scheme_used = scheme_http;
+					port_used = port_http;
+				}
+
+				command += scheme_used + ip_addr_used + port_used;
+				
+
 
 				string new_command = command;
 				new_command += *it;
@@ -134,20 +140,8 @@ int main(int argc, char* argv[]) {
 						loading_time += end-start;
 					}
 					myfile.close();
-					if (http2) {
-						if (is_secure)
-							printf("HTTP/2 over TLS:\n");
-						else
-							printf("HTTP/2 over TCP:\n");
-					}
-					else {
-						if (is_secure)
-							printf("HTTPS:\n");
-						else
-							printf("HTTP:\n");
-					}
-					printf("\t%s = %f\n", 
-						   (*it).c_str(), loading_time/times_to_reach);
+					display_protocol(http2, is_secure);
+					printf("%f\n", loading_time/times_to_reach);
 				}
 				else {
 					printf("Unable to open file\n");
@@ -157,3 +151,20 @@ int main(int argc, char* argv[]) {
 	}
 	return 0;
 }
+
+int display_protocol(int http2, int is_secure) {
+	if (http2) {
+		if (is_secure)
+			printf("\tHTTP/2 over TLS: ");
+		else
+			printf("\tHTTP/2 over TCP: ");
+	}
+	else {
+		if (is_secure)
+			printf("\tHTTPS: ");
+		else
+			printf("\tHTTP: ");
+	}
+	return 0;
+}
+

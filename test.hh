@@ -27,6 +27,13 @@ string no_extensions = "--disable-extensions \
 int set_ignore_certificate_errors = 1;
 string ignore_certificate_errors = "--ignore-certificate-errors ";
 
+// Disable all sorts of caching.
+int set_disable_cache = 1;
+string disable_cache = "--disable-cache --disable-gpu-program-cache \
+	--disable-gpu-shader-disk-cache --disable-offline-load-stale-cache \
+	--disk-cache-size=0 --gpu-program-cache-size-kb=0 --media-cache-size=0 \
+	--disable-application-cache ";
+
 // Enables HTTP/2 (aka SPDY4)
 string enable_spdy4 = "--enable-spdy4 ";
 
@@ -39,8 +46,8 @@ string h2c = "--use-spdy=no-ssl ";
 // Usual scheme and ports for http and https
 string scheme_http = "http://";
 string scheme_https = "https://";
-string port_http = ":80/";
-string port_https = ":443/";
+string port_http = ":80/page_shopping/";
+string port_https = ":443/page_shopping/";
 
 // Machine IP address on which we run our test
 string ip_addr_localhost = "127.0.0.1";
@@ -50,3 +57,5 @@ string ip_addr_vps = "198.50.151.105";
 // Kills last launched background process. TERM option to close "friendly".
 string kill_last_bg_process = "kill -TERM $! ";
 
+// Displays which protocol was used.
+int display_protocol(int http2, int is_secure);
