@@ -42,8 +42,8 @@ int main(int argc, char* argv[]) {
 
 	// List of files (websites) to test
 	deque<string> urls;
-	// urls.push_back("test.html");
 	// urls.push_back("waves.html");
+	// urls.push_back("leopard.html");
 	urls.push_back("index.html");
 
 	for (deque<string>::const_iterator it = urls.begin(); 
