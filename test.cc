@@ -108,8 +108,10 @@ int main(int argc, char* argv[]) {
 				string log1_file = *it + "1.log";
 				string log2_file = *it + "2.log";
 
-				// Log stderr to log_file
-				new_command += " >> " + log_file + " 2>&1 ";
+				// Log stderr to log_file, and everytime the 
+				// command is run, we erase the content of the 
+				// log_file (use of the '>' redirection).
+				new_command += " > " + log_file + " 2>&1 ";
 				
 				new_command += "& " + sleep_cmd;
 
@@ -119,12 +121,29 @@ int main(int argc, char* argv[]) {
 					if (verbose)
 						printf("%s\n", new_command.c_str());
 					system(new_command.c_str());
-				}
 
-				system(("egrep '(^setNavigationStart|^markLoadEventEnd)' " +
-						log_file + " > " + log1_file).c_str());
-				system(("cat " + log1_file + " | awk '{print $3}' > " +
-						log2_file).c_str());
+					// Stores first occurence of setNavigationStart.
+					// I have never seen more than one. Notice that we are
+					// using '>' character, not the append '>>' (though it 
+					// not really necessary because we erase all log files
+					// between every test).
+					system(("cat " + log_file + " | grep -m 1 \
+							^setNavigationStart > "	+ log1_file).c_str());
+
+					// Stores first occurent of markLoadEventEnd starting
+					// from the end of the file (that's the purpose of the
+					// 'tac' command!). Notice that we are using append
+					// redirection '>>'; indeed we do not want to erase the
+					// first timing which came from setNavigationStart.
+					system(("tac " + log_file + " | grep -m 1 \
+							^markLoadEventEnd  >> "	+ log1_file).c_str());
+					
+					// Stores the third column of the log1_file into 
+					// log2_file: there should only be two lines in log2_file
+					// with a single number (double) on each line.
+					system(("cat " + log1_file + " | awk '{print $3}' > " +
+							log2_file).c_str());
+				}
 			
 				// Computing average loading times
 				string line;	
