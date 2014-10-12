@@ -3,34 +3,25 @@
 	#define TEST_HH
 #endif
 
-
 // TODO: Split this function in several parts: make it modular
-
-// TODO: Handle several types of url no matter what the format.
-//		 Might have to change the name of the log files.
 
 int main(int argc, char* argv[]) {
 	int verbose = 0;
 	
-	// Handles command line arguments
-	if (argc > 2) {
-		printf("Usage: %s [-v]\n", argv[0]);
-		return 1;
-	}
+	if (argc > 2)
+		return usage(argv);
+
 	if (argc == 2) {
 		string argv1 = argv[1];
-		if (argv1 == "-v") {
+		if (argv1 == "-v")
 			verbose = 1;
-		}
-		else {
-			printf("Wrong argument\n");
-			return 1;
-		}
+		else
+			return usage(argv);
 	}
 
 	// Time to wait for the webpage to load in seconds.
 	// Method std::to_string() requires --std=c++0x compilation flag
-	int sleep_time = 20;
+	int sleep_time = 10;
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Number of times you want to reach the webpage. The higher, the more
@@ -40,93 +31,58 @@ int main(int argc, char* argv[]) {
 	int http2 = 0;
 	int is_secure = 0; // 1 implies TLS, 0 implies cleartext TCP
 
+	string ip_addr_used = ip_addr_localhost;
+
 	// List of files (websites) to test
 	deque<string> urls;
-	// urls.push_back("waves.html");
-	// urls.push_back("leopard.html");
-	urls.push_back("index.html");
+	urls.push_back("leopard.html");
+	urls.push_back("laposte/index.html");
+	urls.push_back("waves.html");
 
+	// Test all urls.
 	for (deque<string>::const_iterator it = urls.begin(); 
 			it != urls.end(); ++it) {
-
+		string name = *it;
+		replace(name.begin(), name.end(), '/', '.');
 		printf("%s\n", (*it).c_str());
-
+	
+		// And test for each protocol
 		for (http2 = 0; http2 < 2; ++http2) {
 			for (is_secure = 0; is_secure < 2; ++is_secure) {
 
-				// Cleaning up log files
-				if (verbose)
-					printf("Executing: rm -rf *log\n");
-				system("rm -rf *log");
 				// Cleaning up the cache
-				if (verbose)
-					printf("Executing: rm -rf ~/.cache/chromium\n");
+				LOG("rm -rf ~/.cache/chromium\n", verbose);
 				system("rm -rf ~/.cache/chromium");
-
-				// Command line to execute.
-				string command = chromium;
-
-				// Define url to reach 
-				string scheme_used;
-				string port_used;
-				string ip_addr_used = ip_addr_localhost;
-
-				// Setting options
-				if (set_incognito)
-					command += incognito;
-				if (set_no_extensions)
-					command += no_extensions;
-				if (set_ignore_certificate_errors)
-					command += ignore_certificate_errors;
-				if (set_disable_cache)
-					command += disable_cache;
-				if (http2) {
-					command += enable_spdy4;
-					if (is_secure)
-						command += h2;
-					else 
-						command += h2c;
-				}
-
-				// Setting the url
-				if (is_secure) {
-					scheme_used = scheme_https;
-					port_used = port_https;
-				}
-				else {
-					scheme_used = scheme_http;
-					port_used = port_http;
-				}
-
-				command += scheme_used + ip_addr_used + port_used;
 				
+				string executable = chromium;
+				string options = set_options(set_incognito, set_no_extensions,
+					set_ignore_certificate_errors,
+					set_disable_cache, http2, is_secure);
 
+				string url = get_url(is_secure, ip_addr_used)+*it;
 
-				string new_command = command;
-				new_command += *it;
-				string log_file = *it + ".log";
-				string log1_file = *it + "1.log";
-				string log2_file = *it + "2.log";
+				string command = executable+options+url;
+
+				string protocol = protocol_in_use(http2, is_secure);
+				string log_file = protocol + "." + name + ".log";
+				string log1_file = protocol + "." + name + "1.log";
+				string log2_file = protocol + "." + name + "2.log";
 
 				// Log stderr to log_file, and everytime the 
 				// command is run, we erase the content of the 
 				// log_file (use of the '>' redirection).
-				new_command += " > " + log_file + " 2>&1 ";
-				
-				new_command += "& " + sleep_cmd;
-
-				new_command += "&& " + kill_last_bg_process;
+				command += " > " + log_file + " 2>&1 ";
+				command += "& " + sleep_cmd;
+				command += "&& " + kill_last_bg_process;
 
 				for (int i = 0; i < times_to_reach; ++i) {
 					if (verbose)
-						printf("%s\n", new_command.c_str());
-					system(new_command.c_str());
+						printf("%s\n", command.c_str());
+					system(command.c_str());
 
 					// Stores first occurence of setNavigationStart.
 					// I have never seen more than one. Notice that we are
-					// using '>' character, not the append '>>' (though it 
-					// not really necessary because we erase all log files
-					// between every test).
+					// using '>' character, not the append '>>'.
 					system(("cat " + log_file + " | grep -m 1 \
 							^setNavigationStart > "	+ log1_file).c_str());
 
@@ -139,9 +95,9 @@ int main(int argc, char* argv[]) {
 							^markLoadEventEnd  >> "	+ log1_file).c_str());
 					
 					// Stores the third column of the log1_file into 
-					// log2_file: there should only be two lines in log2_file
+					// log2_file: there should be numerous lines in log2_file
 					// with a single number (double) on each line.
-					system(("cat " + log1_file + " | awk '{print $3}' > " +
+					system(("cat " + log1_file + " | awk '{print $3}' >> " +
 							log2_file).c_str());
 				}
 			
@@ -159,7 +115,7 @@ int main(int argc, char* argv[]) {
 						loading_time += end-start;
 					}
 					myfile.close();
-					display_protocol(http2, is_secure);
+					printf("\t%s = ", protocol_in_use(http2, is_secure).c_str());
 					printf("%f\n", loading_time/times_to_reach);
 				}
 				else {
@@ -171,19 +127,66 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-int display_protocol(int http2, int is_secure) {
+string protocol_in_use(int http2, int is_secure) {
 	if (http2) {
 		if (is_secure)
-			printf("\tHTTP/2 over TLS: ");
+			return "h2";
 		else
-			printf("\tHTTP/2 over TCP: ");
+			return "h2c";
 	}
 	else {
 		if (is_secure)
-			printf("\tHTTPS: ");
+			return "https";
 		else
-			printf("\tHTTP: ");
+			return "http";
 	}
-	return 0;
+	return "unknown";
+}
+
+string set_options(int set_incognito, int set_no_extensions,
+	int set_ignore_certificate_errors, int set_disable_cache,
+	int http2, int is_secure) {
+	string result = "";
+	if (set_incognito)
+		result += incognito;
+	if (set_no_extensions)
+		result += no_extensions;
+	if (set_ignore_certificate_errors)
+		result += ignore_certificate_errors;
+	if (set_disable_cache)
+		result += disable_cache;
+	if (http2) {
+		result += enable_spdy4;
+		if (is_secure)
+			result += h2;
+		else 
+			result += h2c;
+	}
+	return result;
+}
+
+void LOG(const char* s, int verbose) {
+	if (verbose)
+		printf(s);
+}
+
+int usage(char* argv[]) {
+	printf("Usage: %s [-v]\n", argv[0]);
+	return 1;
+}
+
+string get_url(int is_secure, string ip_addr_used) {
+	string result = "";
+	if (is_secure) {
+		result += scheme_https;
+		result += ip_addr_used;
+		result += port_https;
+	}
+	else {
+		result += scheme_http;
+		result += ip_addr_used;
+		result += port_http;
+	}
+	return result;
 }
 

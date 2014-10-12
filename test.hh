@@ -4,7 +4,7 @@
 #include <stdint.h> 
 #include <deque>
 #include <fstream>
-
+#include <algorithm> // replace
 using namespace std;
 
 // Chromium executable.
@@ -46,8 +46,8 @@ string h2c = "--use-spdy=no-ssl ";
 // Usual scheme and ports for http and https
 string scheme_http = "http://";
 string scheme_https = "https://";
-string port_http = ":80/laposte/";
-string port_https = ":443/laposte/";
+string port_http = ":80/";
+string port_https = ":443/";
 
 // Machine IP address on which we run our test
 string ip_addr_localhost = "127.0.0.1";
@@ -59,3 +59,17 @@ string kill_last_bg_process = "kill -TERM $! ";
 
 // Displays which protocol was used.
 int display_protocol(int http2, int is_secure);
+
+// Sets options
+string set_options(int set_incognito, int set_no_extensions,
+	int set_ignore_certificate_errors, int set_disable_cache,
+	int http2, int is_secure);
+
+// Log function
+void LOG(const char* s, int verbose);
+
+string protocol_in_use(int http2, int is_secure);
+
+int usage(char* argv[]);
+
+string get_url(int is_secure, string ip_addr_used);
