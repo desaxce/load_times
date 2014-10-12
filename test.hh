@@ -73,3 +73,12 @@ string protocol_in_use(int http2, int is_secure);
 int usage(char* argv[]);
 
 string get_url(int is_secure, string ip_addr_used);
+
+// Computing average loading times
+int average_loading_time(string log2_file, int times_to_reach,
+	int http2, int is_secure);
+
+// Grep log_file and outputs load times in log2_file
+int grep_load_times(string log_file, string log1_file,
+	string log2_file);
+
