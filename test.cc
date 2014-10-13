@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
 	// Time to wait for the webpage to load in seconds.
 	// Method std::to_string() requires --std=c++0x compilation flag
-	int sleep_time = 10;
+	int sleep_time = 20;
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Number of times you want to reach the webpage.
@@ -31,9 +31,10 @@ int main(int argc, char* argv[]) {
 
 	// List of files (websites) to test
 	deque<string> urls;
-	urls.push_back("waves.html");
-	urls.push_back("leopard.html");
-	urls.push_back("laposte/index.html");
+	urls.push_back("index.html");
+	//urls.push_back("waves.html");
+	//urls.push_back("leopard.html");
+	//urls.push_back("laposte/index.html");
 
 	// Test all urls.
 	for (deque<string>::const_iterator it = urls.begin(); 
@@ -43,7 +44,7 @@ int main(int argc, char* argv[]) {
 		printf("%s\n", (*it).c_str());
 	
 		// And test for each protocol
-		for (int http2 = 0; http2 < 2; ++http2) {
+		for (int http2 = 1; http2 < 2; ++http2) {
 			for (int is_secure = 0; is_secure < 2; ++is_secure) {
 
 				// Cleaning up the cache
