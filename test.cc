@@ -25,14 +25,14 @@ int main(int argc, char* argv[]) {
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Number of times you want to reach the webpage.
-	int times_to_reach = 10;
+	int times_to_reach = 1;
 
 	string ip_addr_used = ip_addr_yiping;
 
 	// List of files (websites) to test
 	deque<string> urls;
-	urls.push_back("hahaha.html");
-	//urls.push_back("leopard.html");
+	//urls.push_back("hahaha.html");
+	urls.push_back("leopard.html");
 	//urls.push_back("waves.html");
 	//urls.push_back("laposte/index.html");
 
