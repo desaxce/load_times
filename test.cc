@@ -25,15 +25,15 @@ int main(int argc, char* argv[]) {
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Number of times you want to reach the webpage.
-	int times_to_reach = 1;
+	int times_to_reach = 10;
 
-	string ip_addr_used = ip_addr_localhost;
+	string ip_addr_used = ip_addr_yiping;
 
 	// List of files (websites) to test
 	deque<string> urls;
-	urls.push_back("index.html");
-	//urls.push_back("waves.html");
+	urls.push_back("hahaha.html");
 	//urls.push_back("leopard.html");
+	//urls.push_back("waves.html");
 	//urls.push_back("laposte/index.html");
 
 	// Test all urls.
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 		printf("%s\n", (*it).c_str());
 	
 		// And test for each protocol
-		for (int http2 = 1; http2 < 2; ++http2) {
+		for (int http2 = 0; http2 < 2; ++http2) {
 			for (int is_secure = 0; is_secure < 2; ++is_secure) {
 
 				// Cleaning up the cache

@@ -53,6 +53,7 @@ string port_https = ":443/";
 string ip_addr_localhost = "127.0.0.1";
 string ip_addr_orange_server = "161.106.2.57";
 string ip_addr_vps = "198.50.151.105";
+string ip_addr_yiping = "172.20.36.138";
 
 // Kills last launched background process. TERM option to close "friendly".
 string kill_last_bg_process = "kill -TERM $! ";
