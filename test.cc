@@ -31,10 +31,20 @@ int main(int argc, char* argv[]) {
 
 	// List of files (websites) to test
 	deque<string> urls;
-	//urls.push_back("hahaha.html");
+	urls.push_back("hahaha.html");
 	urls.push_back("leopard.html");
-	//urls.push_back("waves.html");
-	//urls.push_back("laposte/index.html");
+	urls.push_back("waves.html");
+	urls.push_back("dailymotion/index.html");
+	urls.push_back("google_search/index.html");
+	urls.push_back("http2/index.html");
+	urls.push_back("kazuho/index.html");
+	urls.push_back("korben/index.html");
+	urls.push_back("laposte/index.html");
+	urls.push_back("nba/index.html");
+	urls.push_back("nghttp2/index.html");
+	urls.push_back("stackoverflow/index.html");
+	urls.push_back("youtube/index.html");
+
 
 	// Test all urls.
 	for (deque<string>::const_iterator it = urls.begin(); 
