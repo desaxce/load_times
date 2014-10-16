@@ -38,6 +38,10 @@ int main(int argc, char* argv[]) {
 	// List of files (websites) to test
 	deque<string> urls;
 	urls.push_back("hahaha.html");
+	//urls.push_back("page_enter/index.html");
+	//urls.push_back("page_news/index.html");
+	//urls.push_back("page_search/index.html");
+	//urls.push_back("page_shopping/index.html");
 	//urls.push_back("leopard.html");
 	//urls.push_backck("waves.html");
 	//urls.push_backck("dailymotion/index.html");
