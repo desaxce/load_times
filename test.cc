@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 	int verbose = 0;
 
 	// Too many arguments.
-	if (argc > 4)
+	if (argc > 5)
 		return usage(argv);
 
 	// Verbose mode.
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
 	// Time to wait for the webpage to load in seconds.
 	// Method std::to_string() requires --std=c++0x compilation flag
-	int sleep_time = 20;
+	int sleep_time = 5;
 	if (argc >= 3) {
 		sleep_time = atoi(argv[3]);
 	}
@@ -43,15 +43,18 @@ int main(int argc, char* argv[]) {
 	system("rm -rf *.log *.results");
 
 	// Number of times you want to reach the webpage.
-	int times_to_reach = 1;
+	int times_to_reach = 5;
+	if (argc >=5) {
+		times_to_reach = atoi(argv[4]);
+	}
 
 	// List of files (websites) to test
 	deque<string> urls;
-	urls.push_back("hahaha.html");
-	//urls.push_back("page_enter/index.html");
-	//urls.push_back("page_news/index.html");
-	//urls.push_back("page_search/index.html");
+	//urls.push_back("hahaha.html");
 	//urls.push_back("page_shopping/index.html");
+	//urls.push_back("page_search/index.html");
+	//urls.push_back("page_news/index.html");
+	urls.push_back("page_enter/index.html");
 	//urls.push_back("leopard.html");
 	//urls.push_backck("waves.html");
 	//urls.push_backck("dailymotion/index.html");
@@ -111,7 +114,7 @@ int main(int argc, char* argv[]) {
 				}
 				
 				average_loading_time(log2_file, times_to_reach, http2,
-					is_secure);
+					is_secure, name);
 
 			}
 		}
@@ -187,7 +190,7 @@ string get_url(int is_secure, string ip_addr_used) {
 }
 
 int average_loading_time(string log2_file, int times_to_reach,
-	int http2, int is_secure) {
+	int http2, int is_secure, string name) {
 
 	string line;	
 	ifstream myfile(log2_file);
@@ -195,11 +198,9 @@ int average_loading_time(string log2_file, int times_to_reach,
 	// TODO: store the results in one and single file
 
 	if (myfile.is_open()) {
-		FILE* f = fopen(results.c_str(), "w");
-		if (f == NULL) {
-			printf("Error opening file\n");
-			exit(1);
-		}
+		ofstream outfile;
+		outfile.open(name.c_str(), ios_base::app);
+
 		double loading_time = 0;
 
 		for (int i = 0; i < times_to_reach; ++i) {
@@ -210,9 +211,8 @@ int average_loading_time(string log2_file, int times_to_reach,
 			loading_time += end-start;
 		}
 		myfile.close();
-		fprintf(f, "%s ", protocol_in_use(http2, is_secure).c_str());
-		fprintf(f, "%lf\n", loading_time/times_to_reach);
-		fclose(f);
+		outfile << protocol_in_use(http2, is_secure);
+		outfile << " " << loading_time/times_to_reach << endl;
 	}
 	else {
 		printf("Unable to open file\n");
