@@ -6,10 +6,13 @@
 // TODO: Split this function in several parts: make it modular
 
 int main(int argc, char* argv[]) {
+	// Bit of cleanup
+	system("rm -rf *.log *.results");
+
 	int verbose = 0;
 
 	// Too many arguments.
-	if (argc > 3)
+	if (argc > 4)
 		return usage(argv);
 
 	// Verbose mode.
@@ -21,6 +24,7 @@ int main(int argc, char* argv[]) {
 			return usage(argv);
 	}
 
+
 	// IP of the server (default is localhost).
 	string ip_addr_used = ip_addr_localhost;
 	if (argc >=3) {
@@ -30,6 +34,9 @@ int main(int argc, char* argv[]) {
 	// Time to wait for the webpage to load in seconds.
 	// Method std::to_string() requires --std=c++0x compilation flag
 	int sleep_time = 20;
+	if (argc >= 3) {
+		sleep_time = atoi(argv[3]);
+	}
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Number of times you want to reach the webpage.
@@ -152,7 +159,7 @@ void LOG(const char* s, int verbose) {
 }
 
 int usage(char* argv[]) {
-	printf("Usage: %s [-v] <IP address>\n", argv[0]);
+	printf("Usage: %s [-v] <IP address> <time to wait>\n", argv[0]);
 	return 1;
 }
 
@@ -176,7 +183,15 @@ int average_loading_time(string log2_file, int times_to_reach,
 
 	string line;	
 	ifstream myfile(log2_file);
+	string results = log2_file + ".results";
+	
+
 	if (myfile.is_open()) {
+		FILE* f = fopen(results.c_str(), "w");
+		if (f == NULL) {
+			printf("Error opening file\n");
+			exit(1);
+		}
 		double loading_time = 0;
 
 		for (int i = 0; i < times_to_reach; ++i) {
@@ -187,8 +202,9 @@ int average_loading_time(string log2_file, int times_to_reach,
 			loading_time += end-start;
 		}
 		myfile.close();
-		printf("\t%s = ", protocol_in_use(http2, is_secure).c_str());
-		printf("%f\n", loading_time/times_to_reach);
+		fprintf(f, "%s ", protocol_in_use(http2, is_secure).c_str());
+		fprintf(f, "%lf\n", loading_time/times_to_reach);
+		fclose(f);
 	}
 	else {
 		printf("Unable to open file\n");
