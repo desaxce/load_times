@@ -26,3 +26,8 @@
 *.exe
 *.out
 *.app
+
+# Ignore log files and annoying stuff
+*.log
+*~
+*.swp
