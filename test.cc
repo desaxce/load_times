@@ -7,16 +7,24 @@
 
 int main(int argc, char* argv[]) {
 	int verbose = 0;
-	
-	if (argc > 2)
+
+	// Too many arguments.
+	if (argc > 3)
 		return usage(argv);
 
-	if (argc == 2) {
+	// Verbose mode.
+	if (argc >= 2) {
 		string argv1 = argv[1];
 		if (argv1 == "-v")
 			verbose = 1;
 		else
 			return usage(argv);
+	}
+
+	// IP of the server (default is localhost).
+	string ip_addr_used = ip_addr_localhost;
+	if (argc >=3) {
+		ip_addr_used = argv[2];
 	}
 
 	// Time to wait for the webpage to load in seconds.
@@ -27,23 +35,21 @@ int main(int argc, char* argv[]) {
 	// Number of times you want to reach the webpage.
 	int times_to_reach = 1;
 
-	string ip_addr_used = ip_addr_yiping;
-
 	// List of files (websites) to test
 	deque<string> urls;
 	urls.push_back("hahaha.html");
-	urls.push_back("leopard.html");
-	urls.push_back("waves.html");
-	urls.push_back("dailymotion/index.html");
-	urls.push_back("google_search/index.html");
-	urls.push_back("http2/index.html");
-	urls.push_back("kazuho/index.html");
-	urls.push_back("korben/index.html");
-	urls.push_back("laposte/index.html");
-	urls.push_back("nba/index.html");
-	urls.push_back("nghttp2/index.html");
-	urls.push_back("stackoverflow/index.html");
-	urls.push_back("youtube/index.html");
+	//urls.push_back("leopard.html");
+	//urls.push_backck("waves.html");
+	//urls.push_backck("dailymotion/index.html");
+	//urls.push_backck("google_search/index.html");
+	//urls.push_backck("http2/index.html");
+	//urls.push_backck("kazuho/index.html");
+	//urls.push_backck("korben/index.html");
+	//urls.push_backck("laposte/index.html");
+	//urls.push_backck("nba/index.html");
+	//urls.push_backck("nghttp2/index.html");
+	//urls.push_backck("stackoverflow/index.html");
+	//urls.push_backck("youtube/index.html");
 
 
 	// Test all urls.
@@ -142,7 +148,7 @@ void LOG(const char* s, int verbose) {
 }
 
 int usage(char* argv[]) {
-	printf("Usage: %s [-v]\n", argv[0]);
+	printf("Usage: %s [-v] <IP address>\n", argv[0]);
 	return 1;
 }
 
