@@ -6,8 +6,6 @@
 // TODO: Split this function in several parts: make it modular
 
 int main(int argc, char* argv[]) {
-	// Bit of cleanup
-	system("rm -rf *.log *.results");
 
 	int verbose = 0;
 
@@ -39,6 +37,11 @@ int main(int argc, char* argv[]) {
 	}
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
+	// Bit of cleanup
+	if (verbose)
+		printf("rm -rf *.log *.results\n");
+	system("rm -rf *.log *.results");
+
 	// Number of times you want to reach the webpage.
 	int times_to_reach = 1;
 
@@ -68,7 +71,8 @@ int main(int argc, char* argv[]) {
 			it != urls.end(); ++it) {
 		string name = *it;
 		replace(name.begin(), name.end(), '/', '.');
-		printf("%s\n", (*it).c_str());
+		if (verbose)
+			printf("%s\n", (*it).c_str());
 	
 		// And test for each protocol
 		for (int http2 = 0; http2 < 2; ++http2) {
@@ -112,6 +116,10 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
+	// Bit of cleanup (not removing results files cause we might need them
+	if (verbose)
+		printf("rm -rf *.log\n");
+	system("rm -rf *.log");
 	return 0;
 }
 
@@ -184,7 +192,7 @@ int average_loading_time(string log2_file, int times_to_reach,
 	string line;	
 	ifstream myfile(log2_file);
 	string results = log2_file + ".results";
-	
+	// TODO: store the results in one and single file
 
 	if (myfile.is_open()) {
 		FILE* f = fopen(results.c_str(), "w");

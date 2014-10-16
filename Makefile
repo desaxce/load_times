@@ -6,5 +6,6 @@ test: test.cc
 .PHONY: clean
 
 clean:
-	rm -rf test
-	rm -rf *log
+	@rm -rf test
+	@rm -rf *.log
+	@rm -rf *.results
