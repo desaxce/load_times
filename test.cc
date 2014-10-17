@@ -40,7 +40,9 @@ int main(int argc, char* argv[]) {
 	// Test all urls.
 	for (deque<string>::const_iterator it = urls.begin(); 
 			it != urls.end(); ++it) {
-		string name = *it;
+		string name_path = network+"/"+ip_addr_used+"/"+*it;
+		string name = name_path;
+
 		replace(name.begin(), name.end(), '/', '.');
 
 		//if (verbose)
@@ -63,9 +65,9 @@ int main(int argc, char* argv[]) {
 				string command = executable+options+url;
 
 				string protocol = protocol_in_use(http2, is_secure);
-				string log_file = protocol + "_" + name + ".log";
-				string log1_file = protocol + "_" + name + "1.log";
-				string log2_file = protocol + "_" + name + "2.log";
+				string log_file = name + "_" + protocol + ".log";
+				string log1_file = name + "_" + protocol + "_1.log";
+				string log2_file = name + "_" + protocol + "_2.log";
 
 				// Log stderr to log_file, and everytime the 
 				// command is run, we erase the content of the 
@@ -80,13 +82,14 @@ int main(int argc, char* argv[]) {
 				}
 				
 				average_loading_time(log2_file, times_to_reach, http2,
-					is_secure, network+"/"+ip_addr_used+"/"+name);
+					is_secure, name_path);
 
 			}
 		}
 	}
 	// Bit of cleanup (not removing results files cause we might need them
 	return execute("rm -f *.log");
+	//return 0;
 }
 
 string protocol_in_use(int http2, int is_secure) {
