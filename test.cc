@@ -5,23 +5,20 @@
 
 // TODO: Split this function in several parts: make it modular
 
-// These variables should be put in the header file.
-int verbose = 0;
-int sleep_time = 20;
-int times_to_reach = 1;
-string ip_addr_used = ip_addr_localhost;
-
 int main(int argc, char* argv[]) {
-
+	
+	// Parses command line arguments.
 	deal_with_arguments(argc, argv);	
 
 	// Method std::to_string() requires --std=c++0x compilation flag
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
-	// Bit of cleanup
+	// Cleanup
 	execute("rm -rf *.log *.results");
 
-	// List of files (websites) to test
+	execute(("mkdir -p "+ip_addr_used).c_str());
+
+	// List of websites to test
 	deque<string> urls;
 	urls.push_back("hahaha.html");
 	//urls.push_back("page_shopping/index.html");
@@ -48,12 +45,12 @@ int main(int argc, char* argv[]) {
 		string name = *it;
 		replace(name.begin(), name.end(), '/', '.');
 
-		if (verbose)
-			printf("%s\n", (*it).c_str());
+		//if (verbose)
+		//	printf("%s\n", (*it).c_str());
 	
 		// And test for each protocol
-		for (int http2 = 0; http2 < 2; ++http2) {
-			for (int is_secure = 0; is_secure < 2; ++is_secure) {
+		for (int http2 = 1; http2 >=0; --http2) {
+			for (int is_secure = 1; is_secure >=0; --is_secure) {
 
 				// Cleaning up the cache
 				execute("rm -rf ~/.cache/chromium");
@@ -85,7 +82,7 @@ int main(int argc, char* argv[]) {
 				}
 				
 				average_loading_time(log2_file, times_to_reach, http2,
-					is_secure, name);
+					is_secure, ip_addr_used+"/"+name);
 
 			}
 		}
@@ -162,7 +159,7 @@ int average_loading_time(string log2_file, int times_to_reach,
 
 	string line;	
 	ifstream myfile(log2_file);
-	string results = log2_file + ".res";
+//	string results = log2_file + ".res";
 
 	if (myfile.is_open()) {
 		ofstream outfile;

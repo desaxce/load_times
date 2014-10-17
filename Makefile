@@ -10,5 +10,9 @@ clean:
 	@rm -rf *.log
 	@rm -rf *.res
 	@rm -rf *.html
+	@rm -rf 198.50.151.105
+	@rm -rf 161.106.2.57
+	@rm -rf localhost
+	@rm -rf 172.20.36.138
 	@# rm -rf *.css
 	@# rm -rf *.js
