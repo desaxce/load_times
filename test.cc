@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 	// Cleanup
 	execute("rm -rf *.log *.results");
 
-	execute(("mkdir -p "+ip_addr_used).c_str());
+	execute(("mkdir -p "+network+"/"+ip_addr_used).c_str());
 
 	// List of websites to test
 	deque<string> urls;
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
 				}
 				
 				average_loading_time(log2_file, times_to_reach, http2,
-					is_secure, ip_addr_used+"/"+name);
+					is_secure, network+"/"+ip_addr_used+"/"+name);
 
 			}
 		}
@@ -224,6 +224,10 @@ int check_arg(char* argv[], int i) {
 	}
 	else if (strcmp(argv[i], "-t") == 0) {
 		times_to_reach = atoi(argv[i+1]);
+		return 1;
+	}
+	else if (strcmp(argv[i], "-C") ==0) {
+		network = argv[i+1];
 		return 1;
 	}
 	else {

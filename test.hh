@@ -92,3 +92,4 @@ int verbose = 0;
 int sleep_time = 20;
 int times_to_reach = 1;
 string ip_addr_used = ip_addr_localhost;
+string network = "wired";
