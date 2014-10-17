@@ -5,12 +5,11 @@
 
 // TODO: Split this function in several parts: make it modular
 
+// These variables should be put in the header file.
 int verbose = 0;
-// Time to wait for the webpage to load in seconds.
 int sleep_time = 20;
-string ip_addr_used = ip_addr_localhost;
-// Number of times you want to reach the webpage.
 int times_to_reach = 1;
+string ip_addr_used = ip_addr_localhost;
 
 int main(int argc, char* argv[]) {
 
@@ -21,7 +20,6 @@ int main(int argc, char* argv[]) {
 
 	// Bit of cleanup
 	execute("rm -rf *.log *.results");
-
 
 	// List of files (websites) to test
 	deque<string> urls;
@@ -93,10 +91,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	// Bit of cleanup (not removing results files cause we might need them
-	if (verbose)
-		printf("rm -rf *.log\n");
-	system("rm -rf *.log");
-	return 0;
+	return execute("rm -f *.log");
 }
 
 string protocol_in_use(int http2, int is_secure) {
@@ -198,7 +193,7 @@ int grep_load_times(string log_file, string log1_file,
 	// Stores first occurence of setNavigationStart.
 	// I have never seen more than one. Notice that we are
 	// using '>' character, not the append '>>'.
-	system(("cat " + log_file + " | grep -m 1 \
+	execute(("cat " + log_file + " | grep -m 1 \
 			^setNavigationStart > "	+ log1_file).c_str());
 
 	// Stores first occurent of markLoadEventEnd starting
@@ -206,13 +201,13 @@ int grep_load_times(string log_file, string log1_file,
 	// 'tac' command!). Notice that we are using append
 	// redirection '>>'; indeed we do not want to erase the
 	// first timing which came from setNavigationStart.
-	system(("tac " + log_file + " | grep -m 1 \
+	execute(("tac " + log_file + " | grep -m 1 \
 			^markLoadEventEnd  >> "	+ log1_file).c_str());
 	
 	// Stores the third column of the log1_file into 
 	// log2_file: there should be numerous lines in log2_file
 	// with a single number (double) on each line.
-	system(("cat " + log1_file + " | awk '{print $3}' >> " +
+	execute(("cat " + log1_file + " | awk '{print $3}' >> " +
 			log2_file).c_str());
 	return 0;
 }
@@ -232,10 +227,12 @@ int check_arg(char* argv[], int i) {
 	}
 	else if (strcmp(argv[i], "-t") == 0) {
 		times_to_reach = atoi(argv[i+1]);
+		return 1;
 	}
 	else {
 		return -1;
 	}
+	return 0;
 }
 
 int deal_with_arguments(int argc, char* argv[]) {
@@ -251,6 +248,6 @@ int deal_with_arguments(int argc, char* argv[]) {
 
 int execute(const char* s) {
 	LOG(s);
-	system(s);
+	return system(s);
 }
 
