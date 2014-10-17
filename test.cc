@@ -40,9 +40,13 @@ int main(int argc, char* argv[]) {
 	// Test all urls.
 	for (deque<string>::const_iterator it = urls.begin(); 
 			it != urls.end(); ++it) {
-		string name_path = network+"/"+ip_addr_used+"/"+*it;
-		string name = name_path;
 
+		string website = *it;
+		replace(website.begin(), website.end(), '/', '.');
+
+		string name_path = network+"/"+ip_addr_used+"/"+website;
+
+		string name = name_path;
 		replace(name.begin(), name.end(), '/', '.');
 
 		//if (verbose)
@@ -156,7 +160,7 @@ string get_url(int is_secure, string ip_addr_used) {
 }
 
 int average_loading_time(string log2_file, int times_to_reach,
-	int http2, int is_secure, string name) {
+	int http2, int is_secure, string name_path) {
 
 	string line;	
 	ifstream myfile(log2_file);
@@ -164,7 +168,7 @@ int average_loading_time(string log2_file, int times_to_reach,
 
 	if (myfile.is_open()) {
 		ofstream outfile;
-		outfile.open(name.c_str(), ios_base::app);
+		outfile.open(name_path.c_str(), ios_base::app);
 
 		double loading_time = 0;
 
