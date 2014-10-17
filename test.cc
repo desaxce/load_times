@@ -4,37 +4,20 @@
 #endif
 
 // TODO: Split this function in several parts: make it modular
+// TODO: Fix the arguments parsing
+
+int verbose = 0;
+// Time to wait for the webpage to load in seconds.
+int sleep_time = 20;
+string ip_addr_used = ip_addr_localhost;
+// Number of times you want to reach the webpage.
+int times_to_reach = 1;
 
 int main(int argc, char* argv[]) {
 
-	int verbose = 0;
+	deal_with_arguments(argc, argv);	
 
-	// Too many arguments.
-	if (argc > 5)
-		return usage(argv);
-
-	// Verbose mode.
-	if (argc >= 2) {
-		string argv1 = argv[1];
-		if (argv1 == "-v")
-			verbose = 1;
-		else
-			return usage(argv);
-	}
-
-
-	// IP of the server (default is localhost).
-	string ip_addr_used = ip_addr_localhost;
-	if (argc >=3) {
-		ip_addr_used = argv[2];
-	}
-
-	// Time to wait for the webpage to load in seconds.
 	// Method std::to_string() requires --std=c++0x compilation flag
-	int sleep_time = 20;
-	if (argc >= 3) {
-		sleep_time = atoi(argv[3]);
-	}
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Bit of cleanup
@@ -42,11 +25,6 @@ int main(int argc, char* argv[]) {
 		printf("rm -rf *.log *.results\n");
 	system("rm -rf *.log *.results");
 
-	// Number of times you want to reach the webpage.
-	int times_to_reach = 1;
-	if (argc >=5) {
-		times_to_reach = atoi(argv[4]);
-	}
 
 	// List of files (websites) to test
 	deque<string> urls;
@@ -244,4 +222,35 @@ int grep_load_times(string log_file, string log1_file,
 	return 0;
 }
 
+int check_arg(char* argv[], int i) {
+	if (strcmp(argv[i], "-v") == 0) {
+		verbose=1;
+		return 0;
+	}
+	else if (strcmp(argv[i], "--ip") == 0) {
+		ip_addr_used = argv[i+1];
+		return 1;
+	}
+	else if (strcmp(argv[i], "-s") == 0) {
+		sleep_time = atoi(argv[i+1]);
+		return 1;
+	}
+	else if (strcmp(argv[i], "-t") == 0) {
+		times_to_reach = atoi(argv[i+1]);
+	}
+	else {
+		return -1;
+	}
+}
+
+int deal_with_arguments(int argc, char* argv[]) {
+	int result;
+	for (int i = 1; i < argc; ++i) {
+		if ((result=check_arg(argv, i)) == -1) {
+			return 1;
+		}
+		i += result;
+	}
+	return 0;
+}
 

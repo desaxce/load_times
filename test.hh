@@ -5,6 +5,7 @@
 #include <deque>
 #include <fstream>
 #include <algorithm> // replace
+#include <string.h> // strcmp
 using namespace std;
 
 // Chromium executable.
@@ -83,3 +84,5 @@ int average_loading_time(string log2_file, int times_to_reach,
 int grep_load_times(string log_file, string log1_file,
 	string log2_file);
 
+int deal_with_arguments(int argc, char* argv[]);
+int check_arg(char* argv[], int i);
