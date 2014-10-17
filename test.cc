@@ -4,7 +4,6 @@
 #endif
 
 // TODO: Split this function in several parts: make it modular
-// TODO: Fix the arguments parsing
 
 int verbose = 0;
 // Time to wait for the webpage to load in seconds.
@@ -21,9 +20,7 @@ int main(int argc, char* argv[]) {
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Bit of cleanup
-	if (verbose)
-		printf("rm -rf *.log *.results\n");
-	system("rm -rf *.log *.results");
+	execute("rm -rf *.log *.results");
 
 
 	// List of files (websites) to test
@@ -52,6 +49,7 @@ int main(int argc, char* argv[]) {
 			it != urls.end(); ++it) {
 		string name = *it;
 		replace(name.begin(), name.end(), '/', '.');
+
 		if (verbose)
 			printf("%s\n", (*it).c_str());
 	
@@ -60,8 +58,7 @@ int main(int argc, char* argv[]) {
 			for (int is_secure = 0; is_secure < 2; ++is_secure) {
 
 				// Cleaning up the cache
-				LOG("rm -rf ~/.cache/chromium\n", verbose);
-				system("rm -rf ~/.cache/chromium");
+				execute("rm -rf ~/.cache/chromium");
 				
 				string executable = chromium;
 				string options = set_options(set_incognito,
@@ -85,9 +82,7 @@ int main(int argc, char* argv[]) {
 				command += "&& " + kill_last_bg_process;
 
 				for (int i = 0; i < times_to_reach; ++i) {
-					if (verbose)
-						printf("%s\n", command.c_str());
-					system(command.c_str());
+					execute(command.c_str());
 					grep_load_times(log_file, log1_file, log2_file);
 				}
 				
@@ -142,9 +137,9 @@ string set_options(int set_incognito, int set_no_extensions,
 	return result;
 }
 
-void LOG(const char* s, int verbose) {
+void LOG(const char* s) {
 	if (verbose)
-		printf(s);
+		fprintf(stdout, "%s\n", s);
 }
 
 int usage(char* argv[]) {
@@ -252,5 +247,10 @@ int deal_with_arguments(int argc, char* argv[]) {
 		i += result;
 	}
 	return 0;
+}
+
+int execute(const char* s) {
+	LOG(s);
+	system(s);
 }
 
