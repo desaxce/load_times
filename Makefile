@@ -8,7 +8,7 @@ test: test.cc
 clean:
 	@rm -rf test
 	@rm -rf *.log
-	@rm -rf *results
+	@rm -rf *.res
 	@rm -rf *.html
 	@# rm -rf *.css
 	@# rm -rf *.js

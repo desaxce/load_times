@@ -8,8 +8,8 @@
 using namespace std;
 
 // Chromium executable.
-// TODO: Fix the PATH to the executable
-string chromium= "../src/out/Debug/chrome ";
+string chromium_path = getenv("CHROMIUM_PATH");
+string chromium= chromium_path + "src/out/Debug/chrome ";
 
 // Incognito mode: no caching and no automatic connection to gstatic.com
 // and google.com.

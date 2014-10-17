@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
 	// Time to wait for the webpage to load in seconds.
 	// Method std::to_string() requires --std=c++0x compilation flag
-	int sleep_time = 5;
+	int sleep_time = 20;
 	if (argc >= 3) {
 		sleep_time = atoi(argv[3]);
 	}
@@ -43,30 +43,30 @@ int main(int argc, char* argv[]) {
 	system("rm -rf *.log *.results");
 
 	// Number of times you want to reach the webpage.
-	int times_to_reach = 5;
+	int times_to_reach = 1;
 	if (argc >=5) {
 		times_to_reach = atoi(argv[4]);
 	}
 
 	// List of files (websites) to test
 	deque<string> urls;
-	//urls.push_back("hahaha.html");
+	urls.push_back("hahaha.html");
 	//urls.push_back("page_shopping/index.html");
 	//urls.push_back("page_search/index.html");
 	//urls.push_back("page_news/index.html");
-	urls.push_back("page_enter/index.html");
+	//urls.push_back("page_enter/index.html");
 	//urls.push_back("leopard.html");
-	//urls.push_backck("waves.html");
-	//urls.push_backck("dailymotion/index.html");
-	//urls.push_backck("google_search/index.html");
-	//urls.push_backck("http2/index.html");
-	//urls.push_backck("kazuho/index.html");
-	//urls.push_backck("korben/index.html");
-	//urls.push_backck("laposte/index.html");
-	//urls.push_backck("nba/index.html");
-	//urls.push_backck("nghttp2/index.html");
-	//urls.push_backck("stackoverflow/index.html");
-	//urls.push_backck("youtube/index.html");
+	//urls.push_back("waves.html");
+	//urls.push_back("dailymotion/index.html");
+	//urls.push_back("google_search/index.html");
+	//urls.push_back("http2/index.html");
+	//urls.push_back("kazuho/index.html");
+	//urls.push_back("korben/index.html");
+	//urls.push_back("laposte/index.html");
+	//urls.push_back("nba/index.html");
+	//urls.push_back("nghttp2/index.html");
+	//urls.push_back("stackoverflow/index.html");
+	//urls.push_back("youtube/index.html");
 
 
 	// Test all urls.
@@ -194,8 +194,7 @@ int average_loading_time(string log2_file, int times_to_reach,
 
 	string line;	
 	ifstream myfile(log2_file);
-	string results = log2_file + ".results";
-	// TODO: store the results in one and single file
+	string results = log2_file + ".res";
 
 	if (myfile.is_open()) {
 		ofstream outfile;
