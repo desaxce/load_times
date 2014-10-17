@@ -19,8 +19,6 @@ int main(int argc, char* argv[]) {
 	execute(("mkdir -p "+network+"/"+ip_addr_used).c_str());
 
 	// List of websites to test
-	deque<string> urls;
-	urls.push_back("hahaha.html");
 	//urls.push_back("page_shopping/index.html");
 	//urls.push_back("page_search/index.html");
 	//urls.push_back("page_news/index.html");
@@ -49,8 +47,8 @@ int main(int argc, char* argv[]) {
 		//	printf("%s\n", (*it).c_str());
 	
 		// And test for each protocol
-		for (int http2 = 1; http2 >=0; --http2) {
-			for (int is_secure = 1; is_secure >=0; --is_secure) {
+		for (int http2 = 0; http2 < 2; ++http2) {
+			for (int is_secure = 0; is_secure < 2; ++is_secure) {
 
 				// Cleaning up the cache
 				execute("rm -rf ~/.cache/chromium");
@@ -209,7 +207,7 @@ int grep_load_times(string log_file, string log1_file,
 	return 0;
 }
 
-int check_arg(char* argv[], int i) {
+int check_arg(int argc, char* argv[], int i) {
 	if (strcmp(argv[i], "-v") == 0) {
 		verbose=1;
 		return 0;
@@ -226,9 +224,17 @@ int check_arg(char* argv[], int i) {
 		times_to_reach = atoi(argv[i+1]);
 		return 1;
 	}
-	else if (strcmp(argv[i], "-C") ==0) {
+	else if (strcmp(argv[i], "-C") == 0) {
 		network = argv[i+1];
 		return 1;
+	}
+	else if (strcmp(argv[i], "-r") == 0) {
+		int number_of_urls = 0;
+		while (++i < argc) {
+			number_of_urls++;
+			urls.push_back(argv[i]);
+		}
+		return number_of_urls;
 	}
 	else {
 		return -1;
@@ -239,7 +245,7 @@ int check_arg(char* argv[], int i) {
 int deal_with_arguments(int argc, char* argv[]) {
 	int result;
 	for (int i = 1; i < argc; ++i) {
-		if ((result=check_arg(argv, i)) == -1) {
+		if ((result=check_arg(argc, argv, i)) == -1) {
 			return 1;
 		}
 		i += result;

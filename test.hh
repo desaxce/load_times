@@ -85,7 +85,7 @@ int grep_load_times(string log_file, string log1_file,
 	string log2_file);
 
 int deal_with_arguments(int argc, char* argv[]);
-int check_arg(char* argv[], int i);
+int check_arg(int argc, char* argv[], int i);
 int execute(const char* s);
 
 int verbose = 0;
@@ -93,3 +93,4 @@ int sleep_time = 20;
 int times_to_reach = 1;
 string ip_addr_used = ip_addr_localhost;
 string network = "wired";
+deque<string> urls;
