@@ -10,41 +10,28 @@ int main(int argc, char* argv[]) {
 	// Parses command line arguments.
 	deal_with_arguments(argc, argv);	
 
+	if (strcmp(delay.c_str(), "0ms")!=0) {
+		execute(("sudo tc qdisc add dev "+interface+
+				 " root netem delay "+delay).c_str());
+	}
+
 	// Method std::to_string() requires --std=c++0x compilation flag
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	// Cleanup
 	execute("rm -rf *.log *.results");
 
-	execute(("mkdir -p "+network+"/"+ip_addr_used).c_str());
-
-	// List of websites to test
-	//urls.push_back("page_shopping/index.html");
-	//urls.push_back("page_search/index.html");
-	//urls.push_back("page_news/index.html");
-	//urls.push_back("page_enter/index.html");
-	//urls.push_back("leopard.html");
-	//urls.push_back("waves.html");
-	//urls.push_back("dailymotion/index.html");
-	//urls.push_back("google_search/index.html");
-	//urls.push_back("http2/index.html");
-	//urls.push_back("kazuho/index.html");
-	//urls.push_back("korben/index.html");
-	//urls.push_back("laposte/index.html");
-	//urls.push_back("nba/index.html");
-	//urls.push_back("nghttp2/index.html");
-	//urls.push_back("stackoverflow/index.html");
-	//urls.push_back("youtube/index.html");
+	execute(("mkdir -p "+delay+"/"+network+"/"+ip_addr_used).c_str());
 
 
-	// Test all urls.
+	// Test all given urls.
 	for (deque<string>::const_iterator it = urls.begin(); 
 			it != urls.end(); ++it) {
 
 		string website = *it;
 		replace(website.begin(), website.end(), '/', '.');
 
-		string name_path = network+"/"+ip_addr_used+"/"+website;
+		string name_path = delay+"/"+network+"/"+ip_addr_used+"/"+website;
 
 		string name = name_path;
 		replace(name.begin(), name.end(), '/', '.');
@@ -91,9 +78,47 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
+	concat_all_files();
+	
+	if (strcmp(delay.c_str(), "0ms")!=0) {
+		execute(("sudo tc qdisc del root dev "+interface).c_str());
+	}
+
 	// Bit of cleanup (not removing results files cause we might need them
 	return execute("rm -f *.log");
 	//return 0;
+}
+
+int concat_all_files() {
+	string path = delay+"/"+network+"/"+ip_addr_used+".txt";
+	ofstream outfile;
+	outfile.open(path.c_str(), ios_base::app);
+	outfile << "Website-Protocol http https h2c h2" << endl;
+
+	for (deque<string>::const_iterator it = urls.begin(); 
+			it != urls.end(); ++it) {
+		string website = *it;
+		replace(website.begin(), website.end(), '/', '.');
+		string final_path = delay+"/"+network+"/"+ip_addr_used+"/"+website;
+		string delimiter = ".";
+		string token = website.substr(0, website.find(delimiter));
+		outfile << token+" ";
+		
+		ifstream myfile(final_path);
+		if (myfile.is_open()) {
+			string line;	
+			for (int i = 0; i < 4; ++i) {
+				getline(myfile, line);
+				double loading_time = strtod(line.c_str(), NULL);
+				outfile << loading_time << " ";
+			}
+		}
+		outfile << endl;
+		myfile.close();
+	}
+	outfile.close();
+
+	return 0;
 }
 
 string protocol_in_use(int http2, int is_secure) {
@@ -180,8 +205,8 @@ int average_loading_time(string log2_file, int times_to_reach,
 			loading_time += end-start;
 		}
 		myfile.close();
-		outfile << protocol_in_use(http2, is_secure);
-		outfile << " " << loading_time/times_to_reach << endl;
+		outfile << loading_time/times_to_reach << endl;
+		outfile.close();
 	}
 	else {
 		printf("Unable to open file\n");
@@ -234,6 +259,11 @@ int check_arg(int argc, char* argv[], int i) {
 	else if (strcmp(argv[i], "-C") == 0) {
 		network = argv[i+1];
 		return 1;
+	}
+	else if (strcmp(argv[i], "-d") == 0) {
+		delay = argv[i+1];
+		interface = argv[i+2];
+		return 2;
 	}
 	else if (strcmp(argv[i], "-r") == 0) {
 		int number_of_urls = 0;

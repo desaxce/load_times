@@ -10,5 +10,6 @@ clean:
 	@rm -rf *.log
 	@rm -rf *.res
 	@rm -rf *.html
+	@rm -rf 100ms
 	@# rm -rf *.css
 	@# rm -rf *.js
