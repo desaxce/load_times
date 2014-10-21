@@ -1,0 +1,2 @@
+pause mouse key
+if (MOUSE_KEY == 13) reread
