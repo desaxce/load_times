@@ -60,17 +60,13 @@ string ip_addr_yiping = "172.20.36.138";
 string kill_last_bg_process = "kill -TERM $! ";
 
 // Displays which protocol was used.
-int display_protocol(int http2, int is_secure);
+// int display_protocol(int http2, int is_secure);
 
 // Sets options
-string set_options(int set_incognito, int set_no_extensions,
-	int set_ignore_certificate_errors, int set_disable_cache,
-	int http2, int is_secure);
+string set_options(int protocol);
 
 // Log function
 void LOG(const char* s);
-
-string protocol_in_use(int http2, int is_secure);
 
 int usage(char* argv[]);
 
@@ -78,7 +74,7 @@ string get_url(int is_secure, string ip_addr_used);
 
 // Computing average loading times
 int average_loading_time(string log2_file, int times_to_reach,
-	int http2, int is_secure, string name);
+	int proto, string name);
 
 // Grep log_file and outputs load times in log2_file
 int grep_load_times(string log_file, string log1_file,
@@ -97,3 +93,18 @@ deque<string> urls;
 string delay = "0ms";
 string interface = "lo";
 int concat_all_files();
+
+enum Protocol {
+	http = 0,
+	https = 1,
+	http2 = 2,
+	http2s = 3
+};
+
+static inline const char *stringFromProtocol(int proto) {
+	static const char *strings[] = {"http", "https", "http2", "http2s"};
+	return strings[proto];
+}
+
+void clean_cache();
+void clean_logs();

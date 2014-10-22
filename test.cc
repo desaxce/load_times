@@ -4,12 +4,14 @@
 #endif
 
 // TODO: Split this function in several parts: make it modular
+// TODO: Handle the fact that you have to be root to change delay/latency
 
 int main(int argc, char* argv[]) {
 	
 	// Parses command line arguments.
 	deal_with_arguments(argc, argv);	
 
+	// If there is some delay on the link
 	if (strcmp(delay.c_str(), "0ms")!=0) {
 		execute(("sudo tc qdisc add dev "+interface+
 				 " root netem delay "+delay).c_str());
@@ -18,16 +20,15 @@ int main(int argc, char* argv[]) {
 	// Method std::to_string() requires --std=c++0x compilation flag
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
-	// Cleanup
-	execute("rm -rf *.log *.results");
+	clean_logs();
 
 	execute(("mkdir -p "+delay+"/"+network+"/"+ip_addr_used).c_str());
 
 
 	// Test all given urls.
-	for (deque<string>::const_iterator it = urls.begin(); 
-			it != urls.end(); ++it) {
-
+	for (deque<string>::const_iterator it = urls.begin();it != urls.end(); ++it) {
+		
+		// *it = google/index.html and website = google.index.html
 		string website = *it;
 		replace(website.begin(), website.end(), '/', '.');
 
@@ -36,46 +37,36 @@ int main(int argc, char* argv[]) {
 		string name = name_path;
 		replace(name.begin(), name.end(), '/', '.');
 
-		//if (verbose)
-		//	printf("%s\n", (*it).c_str());
-	
 		// And test for each protocol
-		for (int http2 = 0; http2 < 2; ++http2) {
-			for (int is_secure = 0; is_secure < 2; ++is_secure) {
+		for (int proto = http; proto <= http2s; ++proto) {
 
-				// Cleaning up the cache
-				execute("rm -rf ~/.cache/chromium");
-				
-				string executable = chromium;
-				string options = set_options(set_incognito,
-					set_no_extensions, set_ignore_certificate_errors,
-					set_disable_cache, http2, is_secure);
+			clean_cache();
+			
+			string options = set_options(proto);
 
-				string url = get_url(is_secure, ip_addr_used)+*it;
+			string url = get_url(proto, ip_addr_used)+*it;
 
-				string command = executable+options+url;
+			string command = chromium+options+url;
 
-				string protocol = protocol_in_use(http2, is_secure);
-				string log_file = name + "_" + protocol + ".log";
-				string log1_file = name + "_" + protocol + "_1.log";
-				string log2_file = name + "_" + protocol + "_2.log";
+			string protocol_in_use =  stringFromProtocol(proto);
+			string log_file = name + "_" + protocol_in_use + ".log";
+			string log1_file = name + "_" + protocol_in_use + "_1.log";
+			string log2_file = name + "_" + protocol_in_use + "_2.log";
 
-				// Log stderr to log_file, and everytime the 
-				// command is run, we erase the content of the 
-				// log_file (use of the '>' redirection).
-				command += " > " + log_file + " 2>&1 ";
-				command += "& " + sleep_cmd;
-				command += "&& " + kill_last_bg_process;
+			// Log stderr to log_file, and everytime the 
+			// command is run, we erase the content of the 
+			// log_file (use of the '>' redirection).
+			command += " > " + log_file + " 2>&1 ";
+			command += "& " + sleep_cmd;
+			command += "&& " + kill_last_bg_process;
 
-				for (int i = 0; i < times_to_reach; ++i) {
-					execute(command.c_str());
-					grep_load_times(log_file, log1_file, log2_file);
-				}
-				
-				average_loading_time(log2_file, times_to_reach, http2,
-					is_secure, name_path);
-
+			for (int i = 0; i < times_to_reach; ++i) {
+				execute(command.c_str());
+				grep_load_times(log_file, log1_file, log2_file);
 			}
+			
+			average_loading_time(log2_file, times_to_reach, proto, name_path);
+
 		}
 	}
 	concat_all_files();
@@ -84,9 +75,8 @@ int main(int argc, char* argv[]) {
 		execute(("sudo tc qdisc del root dev "+interface).c_str());
 	}
 
-	// Bit of cleanup (not removing results files cause we might need them
-	return execute("rm -f *.log");
-	//return 0;
+	clean_logs();
+	return 0;
 }
 
 int concat_all_files() {
@@ -121,25 +111,7 @@ int concat_all_files() {
 	return 0;
 }
 
-string protocol_in_use(int http2, int is_secure) {
-	if (http2) {
-		if (is_secure)
-			return "h2";
-		else
-			return "h2c";
-	}
-	else {
-		if (is_secure)
-			return "https";
-		else
-			return "http";
-	}
-	return "unknown";
-}
-
-string set_options(int set_incognito, int set_no_extensions,
-	int set_ignore_certificate_errors, int set_disable_cache,
-	int http2, int is_secure) {
+string set_options(int proto) {
 	string result = "";
 	if (set_incognito)
 		result += incognito;
@@ -149,13 +121,20 @@ string set_options(int set_incognito, int set_no_extensions,
 		result += ignore_certificate_errors;
 	if (set_disable_cache)
 		result += disable_cache;
-	if (http2) {
-		result += enable_spdy4;
-		if (is_secure)
+
+	switch (proto) {
+		case http2s:
+			result += enable_spdy4;
 			result += h2;
-		else 
+			break;
+		case http2:
+			result += enable_spdy4;
 			result += h2c;
+			break;
+		default:
+			break;
 	}
+	
 	return result;
 }
 
@@ -169,9 +148,9 @@ int usage(char* argv[]) {
 	return 1;
 }
 
-string get_url(int is_secure, string ip_addr_used) {
+string get_url(int proto, string ip_addr_used) {
 	string result = "";
-	if (is_secure) {
+	if (proto == 1 or proto == 3) {
 		result += scheme_https;
 		result += ip_addr_used;
 		result += port_https;
@@ -185,7 +164,7 @@ string get_url(int is_secure, string ip_addr_used) {
 }
 
 int average_loading_time(string log2_file, int times_to_reach,
-	int http2, int is_secure, string name_path) {
+	int proto, string name_path) {
 
 	string line;	
 	ifstream myfile(log2_file);
@@ -293,5 +272,13 @@ int deal_with_arguments(int argc, char* argv[]) {
 int execute(const char* s) {
 	LOG(s);
 	return system(s);
+}
+
+void clean_logs() {
+	execute("rm -rf *.log");
+}
+
+void clean_cache() {
+	execute("rm -rf ~/.cache/chromium");
 }
 
