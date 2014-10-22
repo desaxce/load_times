@@ -11,6 +11,12 @@ color(name) = (name eq "0") ? 0xff0000 \
 	: (name eq "4") ? 0x000000 \
 	: int(rand(0)*0xffffff)
 
+protocol(name) = (name eq "0") ? "http" \
+	: (name eq "1") ? "https" \
+	: (name eq "2") ? "http2" \
+	: (name eq "3") ? "http2s" \
+	: "unknown"
+
 set auto x
 set grid
 set title "Page load performances"
@@ -22,6 +28,6 @@ set yrange [0:*]
 
 set style fill solid
 
-plot '$1' u (column(0)):1:(0.5):(color(strcol(0))):xtic(1) w boxes fillcolor rgb variable 
+plot '$1' u (column(0)):1:(0.5):(color(strcol(0))):xtic(protocol(strcol(0))) w boxes fillcolor rgb variable 
 load "loop_til_escape"
 EOF

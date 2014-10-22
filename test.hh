@@ -78,10 +78,14 @@ int average_loading_time(string log2_file, int times_to_reach,
 int grep_load_times(string log_file, string log1_file,
 	string log2_file);
 
+// Parses the arguments
 int deal_with_arguments(int argc, char* argv[]);
 int check_arg(int argc, char* argv[], int i);
+
+// Execute command line 
 int execute(string s);
 
+// Global variables for arguments
 int verbose = 0;
 int sleep_time = 20;
 int times_to_reach = 1;
@@ -90,8 +94,11 @@ string network = "default";
 deque<string> urls;
 string delay = "0ms";
 string interface = "lo";
+
+// Create a global file containing all the results
 int concat_all_files();
 
+// Protocols to use
 enum Protocol {
 	http = 0,
 	https = 1,
@@ -104,5 +111,6 @@ static inline const char *stringFromProtocol(int proto) {
 	return strings[proto];
 }
 
+// Clean up functions
 void clean_cache();
 void clean_logs();

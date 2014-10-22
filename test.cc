@@ -40,8 +40,8 @@ int main(int argc, char* argv[]) {
 
 			clean_cache();
 			string log_file = name + "_" + stringFromProtocol(proto) + ".log";
-			string log1_file = name + "_" + stringFromProtocol(proto) + "_1.log";
-			string log2_file = name + "_" + stringFromProtocol(proto) + "_2.log";
+			string log_file_1 = name + "_" + stringFromProtocol(proto) + "_1.log";
+			string log_file_2 = name + "_" + stringFromProtocol(proto) + "_2.log";
 			
 			// Log stderr to log_file, and everytime the command is run, we erase
 			// the content of the log_file (use of the '>' redirection).
@@ -51,10 +51,10 @@ int main(int argc, char* argv[]) {
 
 			for (int i = 0; i < times_to_reach; ++i) {
 				execute(command);
-				grep_load_times(log_file, log1_file, log2_file);
+				grep_load_times(log_file, log_file_1, log_file_2);
 			}
 			
-			average_loading_time(log2_file, times_to_reach, proto, name_path);
+			average_loading_time(log_file_2, times_to_reach, proto, name_path);
 
 		}
 	}
@@ -154,11 +154,11 @@ string get_url(int proto, string ip_addr_used) {
 	return result;
 }
 
-int average_loading_time(string log2_file, int times_to_reach,
+int average_loading_time(string log_file_2, int times_to_reach,
 	int proto, string name_path) {
 
 	string line;	
-	ifstream myfile(log2_file);
+	ifstream myfile(log_file_2);
 
 	if (myfile.is_open()) {
 		ofstream outfile;
@@ -184,13 +184,13 @@ int average_loading_time(string log2_file, int times_to_reach,
 	return 0;
 }
 
-int grep_load_times(string log_file, string log1_file,
-	string log2_file) {
+int grep_load_times(string log_file, string log_file_1,
+	string log_file_2) {
 	// Stores first occurence of setNavigationStart.
 	// I have never seen more than one. Notice that we are
 	// using '>' character, not the append '>>'.
 	execute("cat " + log_file + " | grep -m 1 \
-			^setNavigationStart > "	+ log1_file);
+			^setNavigationStart > "	+ log_file_1);
 
 	// Stores first occurent of markLoadEventEnd starting
 	// from the end of the file (that's the purpose of the
@@ -198,13 +198,13 @@ int grep_load_times(string log_file, string log1_file,
 	// redirection '>>'; indeed we do not want to erase the
 	// first timing which came from setNavigationStart.
 	execute("tac " + log_file + " | grep -m 1 \
-			^markLoadEventEnd  >> "	+ log1_file);
+			^markLoadEventEnd  >> "	+ log_file_1);
 	
-	// Stores the third column of the log1_file into 
-	// log2_file: there should be numerous lines in log2_file
+	// Stores the third column of the log_file_1 into 
+	// log_file_2: there should be numerous lines in log_file_2
 	// with a single number (double) on each line.
-	execute("cat " + log1_file + " | awk '{print $3}' >> " +
-			log2_file);
+	execute("cat " + log_file_1 + " | awk '{print $3}' >> " +
+			log_file_2);
 	return 0;
 }
 
