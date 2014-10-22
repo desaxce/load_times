@@ -5,63 +5,52 @@
 
 // TODO: Split this function in several parts: make it modular
 // TODO: Handle the fact that you have to be root to change delay/latency
-
+// TODO: Change the way we compute the page loading time, use the onload event
+//		 fired by the browser
 int main(int argc, char* argv[]) {
 	
-	// Parses command line arguments.
 	deal_with_arguments(argc, argv);	
 
 	// If there is some delay on the link
 	if (strcmp(delay.c_str(), "0ms")!=0) {
-		execute(("sudo tc qdisc add dev "+interface+
-				 " root netem delay "+delay).c_str());
+		execute("sudo tc qdisc add dev "+interface+
+				 " root netem delay "+delay);
 	}
 
 	// Method std::to_string() requires --std=c++0x compilation flag
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	clean_logs();
+	string path_to_logs = delay+"/"+network+"/"+ip_addr_used;
+	execute("mkdir -p "+path_to_logs);
 
-	execute(("mkdir -p "+delay+"/"+network+"/"+ip_addr_used).c_str());
-
-
-	// Test all given urls.
+	
 	for (deque<string>::const_iterator it = urls.begin();it != urls.end(); ++it) {
 		
 		// *it = google/index.html and website = google.index.html
 		string website = *it;
 		replace(website.begin(), website.end(), '/', '.');
 
-		string name_path = delay+"/"+network+"/"+ip_addr_used+"/"+website;
+		string name_path = path_to_logs+"/"+website;
 
 		string name = name_path;
 		replace(name.begin(), name.end(), '/', '.');
 
-		// And test for each protocol
 		for (int proto = http; proto <= http2s; ++proto) {
 
 			clean_cache();
+			string log_file = name + "_" + stringFromProtocol(proto) + ".log";
+			string log1_file = name + "_" + stringFromProtocol(proto) + "_1.log";
+			string log2_file = name + "_" + stringFromProtocol(proto) + "_2.log";
 			
-			string options = set_options(proto);
-
-			string url = get_url(proto, ip_addr_used)+*it;
-
-			string command = chromium+options+url;
-
-			string protocol_in_use =  stringFromProtocol(proto);
-			string log_file = name + "_" + protocol_in_use + ".log";
-			string log1_file = name + "_" + protocol_in_use + "_1.log";
-			string log2_file = name + "_" + protocol_in_use + "_2.log";
-
-			// Log stderr to log_file, and everytime the 
-			// command is run, we erase the content of the 
-			// log_file (use of the '>' redirection).
-			command += " > " + log_file + " 2>&1 ";
-			command += "& " + sleep_cmd;
-			command += "&& " + kill_last_bg_process;
+			// Log stderr to log_file, and everytime the command is run, we erase
+			// the content of the log_file (use of the '>' redirection).
+			string command = chromium + set_options(proto) + get_url(proto, ip_addr_used) 
+				+ *it + " > " + log_file + " 2>&1 " + "& " + sleep_cmd + "&& "
+				+ kill_last_bg_process;
 
 			for (int i = 0; i < times_to_reach; ++i) {
-				execute(command.c_str());
+				execute(command);
 				grep_load_times(log_file, log1_file, log2_file);
 			}
 			
@@ -70,9 +59,9 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	concat_all_files();
-	
+
 	if (strcmp(delay.c_str(), "0ms")!=0) {
-		execute(("sudo tc qdisc del root dev "+interface).c_str());
+		execute("sudo tc qdisc del root dev "+interface);
 	}
 
 	clean_logs();
@@ -144,7 +133,9 @@ void LOG(const char* s) {
 }
 
 int usage(char* argv[]) {
-	printf("Usage: %s [-v] <IP address> <time to wait>\n", argv[0]);
+	printf("Usage: %s [-v] --ip <IP address> -s <time to wait> -t <times to reach> \
+		-d <delay ms> <interface> -C <target directory -r <webpage1.html \
+		webpage2.html ...>\n", argv[0]);
 	return 1;
 }
 
@@ -168,7 +159,6 @@ int average_loading_time(string log2_file, int times_to_reach,
 
 	string line;	
 	ifstream myfile(log2_file);
-//	string results = log2_file + ".res";
 
 	if (myfile.is_open()) {
 		ofstream outfile;
@@ -199,22 +189,22 @@ int grep_load_times(string log_file, string log1_file,
 	// Stores first occurence of setNavigationStart.
 	// I have never seen more than one. Notice that we are
 	// using '>' character, not the append '>>'.
-	execute(("cat " + log_file + " | grep -m 1 \
-			^setNavigationStart > "	+ log1_file).c_str());
+	execute("cat " + log_file + " | grep -m 1 \
+			^setNavigationStart > "	+ log1_file);
 
 	// Stores first occurent of markLoadEventEnd starting
 	// from the end of the file (that's the purpose of the
 	// 'tac' command!). Notice that we are using append
 	// redirection '>>'; indeed we do not want to erase the
 	// first timing which came from setNavigationStart.
-	execute(("tac " + log_file + " | grep -m 1 \
-			^markLoadEventEnd  >> "	+ log1_file).c_str());
+	execute("tac " + log_file + " | grep -m 1 \
+			^markLoadEventEnd  >> "	+ log1_file);
 	
 	// Stores the third column of the log1_file into 
 	// log2_file: there should be numerous lines in log2_file
 	// with a single number (double) on each line.
-	execute(("cat " + log1_file + " | awk '{print $3}' >> " +
-			log2_file).c_str());
+	execute("cat " + log1_file + " | awk '{print $3}' >> " +
+			log2_file);
 	return 0;
 }
 
@@ -269,9 +259,9 @@ int deal_with_arguments(int argc, char* argv[]) {
 	return 0;
 }
 
-int execute(const char* s) {
-	LOG(s);
-	return system(s);
+int execute(string s) {
+	LOG(s.c_str());
+	return system(s.c_str());
 }
 
 void clean_logs() {

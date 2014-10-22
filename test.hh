@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm> // replace
 #include <string.h> // strcmp
+
 using namespace std;
 
 // Chromium executable.
@@ -59,18 +60,15 @@ string ip_addr_yiping = "172.20.36.138";
 // Kills last launched background process. TERM option to close "friendly".
 string kill_last_bg_process = "kill -TERM $! ";
 
-// Displays which protocol was used.
-// int display_protocol(int http2, int is_secure);
-
 // Sets options
-string set_options(int protocol);
+string set_options(int proto);
 
 // Log function
 void LOG(const char* s);
 
 int usage(char* argv[]);
 
-string get_url(int is_secure, string ip_addr_used);
+string get_url(int proto, string ip_addr_used);
 
 // Computing average loading times
 int average_loading_time(string log2_file, int times_to_reach,
@@ -82,7 +80,7 @@ int grep_load_times(string log_file, string log1_file,
 
 int deal_with_arguments(int argc, char* argv[]);
 int check_arg(int argc, char* argv[], int i);
-int execute(const char* s);
+int execute(string s);
 
 int verbose = 0;
 int sleep_time = 20;
