@@ -71,7 +71,7 @@ int usage(char* argv[]);
 string get_url(int proto, string ip_addr_used);
 
 // Computing average loading times
-int average_loading_time(string log2_file, int times_to_reach,
+int average_loading_time(string log2_file,
 	int proto, string name);
 
 // Grep log_file and outputs load times in log2_file

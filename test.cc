@@ -7,11 +7,14 @@
 // TODO: Handle the fact that you have to be root to change delay/latency
 // TODO: Change the way we compute the page loading time, use the onload event
 //		 fired by the browser
+// TODO: Remove bash calls to the minimum (that is chromium calls)
 int main(int argc, char* argv[]) {
 	
 	clean_logs();
 
-	deal_with_arguments(argc, argv);	
+	if (deal_with_arguments(argc, argv)) {
+		return usage(argv);
+	}
 	set_delay();
 
 	char d[4];
@@ -40,8 +43,8 @@ int main(int argc, char* argv[]) {
 
 			clean_cache();
 			string log_file = name + "_" + stringFromProtocol(proto) + ".log";
-			string log_file_1 = name + "_" + stringFromProtocol(proto) + "_1.log";
-			string log_file_2 = name + "_" + stringFromProtocol(proto) + "_2.log";
+			string log_file_1 = "1_"+log_file;
+			string log_file_2 = "2_"+log_file;
 			
 			// Log stderr to log_file, and everytime the command is run, we erase
 			// the content of the log_file (use of the '>' redirection).
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]) {
 				grep_load_times(log_file, log_file_1, log_file_2);
 			}
 			
-			average_loading_time(log_file_2, times_to_reach, proto, name_path);
+			average_loading_time(log_file_2, proto, name_path);
 
 		}
 	}
@@ -133,9 +136,7 @@ void LOG(const char* s) {
 }
 
 int usage(char* argv[]) {
-	printf("Usage: %s [-v] --ip <IP address> -s <time to wait> -t <times to reach> \
-		-d <delay in ms> <interface> -C <target directory -r <webpage1.html \
-		webpage2.html ...>\n", argv[0]);
+		printf("Usage: %s \t[-v] \n\t\t--ip <IP address> \n\t\t-s <time to wait> \n\t\t-t <times to reach> \n\t\t-d <delay in ms> <interface> \n\t\t-C <target directory \n\t\t-r <webpage1.html webpage2.html ...>\n", argv[0]);
 	return 1;
 }
 
@@ -154,7 +155,7 @@ string get_url(int proto, string ip_addr_used) {
 	return result;
 }
 
-int average_loading_time(string log_file_2, int times_to_reach,
+int average_loading_time(string log_file_2,
 	int proto, string name_path) {
 
 	string line;	
@@ -249,6 +250,9 @@ int check_arg(int argc, char* argv[], int i) {
 }
 
 int deal_with_arguments(int argc, char* argv[]) {
+	if (argc == 1) {
+		return 1;
+	}
 	int result;
 	for (int i = 1; i < argc; ++i) {
 		if ((result=check_arg(argc, argv, i)) == -1) {
