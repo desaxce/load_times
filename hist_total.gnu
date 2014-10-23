@@ -14,7 +14,7 @@ color(name) = (name eq "http") ? 0xff0000 \
 set title "Page load performances"
 set auto x
 # set grid
-set xlabel "Protocol"
+set xlabel "Webpage"
 set ylabel "Time in seconds"
 
 # Sets the y range from 0 to max value of y

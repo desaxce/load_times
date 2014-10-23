@@ -17,14 +17,10 @@ int main(int argc, char* argv[]) {
 	}
 	set_delay();
 
-	char d[4];
-	sprintf(d, "%d", delay);
-	string d_string = d;
-
 	// Method std::to_string() requires --std=c++0x compilation flag
 	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
-	string path_to_logs = d_string+"/"+network+"/"+ip_addr_used;
+	string path_to_logs = delay+"/"+network+"/"+ip_addr_used;
 	execute("mkdir -p "+path_to_logs);
 
 	
@@ -69,10 +65,7 @@ int main(int argc, char* argv[]) {
 }
 
 int concat_all_files() {
-	char d[4];
-	sprintf(d, "%d", delay);
-	string d_string = d;
-	string path = d_string+"/"+network+"/"+ip_addr_used+".txt";
+	string path = delay+"/"+network+"/"+ip_addr_used+".txt";
 	ofstream outfile;
 	outfile.open(path.c_str(), ios_base::app);
 	outfile << "Website-Protocol http https h2c h2" << endl;
@@ -81,7 +74,7 @@ int concat_all_files() {
 			it != urls.end(); ++it) {
 		string website = *it;
 		replace(website.begin(), website.end(), '/', '.');
-		string final_path = d_string+"/"+network+"/"+ip_addr_used+"/"+website;
+		string final_path = delay+"/"+network+"/"+ip_addr_used+"/"+website;
 		string delimiter = ".";
 		string token = website.substr(0, website.find(delimiter));
 		outfile << token+" ";
@@ -136,7 +129,13 @@ void LOG(const char* s) {
 }
 
 int usage(char* argv[]) {
-		printf("Usage: %s \t[-v] \n\t\t--ip <IP address> \n\t\t-s <time to wait> \n\t\t-t <times to reach> \n\t\t-d <delay in ms> <interface> \n\t\t-C <target directory \n\t\t-r <webpage1.html webpage2.html ...>\n", argv[0]);
+		printf("Usage: %s \t[-v] \
+		\n\t\t--ip <IP address> \
+		\n\t\t-s <time to wait> \
+		\n\t\t-t <times to reach> \
+		\n\t\t-d <delay in ms> <interface> \
+		\n\t\t-C <target directory \
+		\n\t\t-r <webpage1.html webpage2.html ...>\n", argv[0]);
 	return 1;
 }
 
@@ -231,7 +230,7 @@ int check_arg(int argc, char* argv[], int i) {
 		return 1;
 	}
 	else if (strcmp(argv[i], "-d") == 0) {
-		delay = atoi(argv[i+1]);
+		delay = argv[i+1];
 		interface = argv[i+2];
 		return 2;
 	}
@@ -277,16 +276,14 @@ void clean_cache() {
 }
 
 void set_delay() {
-	char d[4];
-	sprintf(d, "%d", delay);
-	if (delay!=0) {
+	if (atoi(delay.c_str())!=0) {
 		execute("sudo tc qdisc add dev "+interface+
-				 " root netem delay "+d+"ms");
+				 " root netem delay "+delay+"ms");
 	}
 }
 
 void unset_delay() {
-	if (delay!=0) {
+	if (atoi(delay.c_str())!=0) {
 		execute("sudo tc qdisc del root dev "+interface);
 	}
 }

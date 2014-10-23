@@ -92,7 +92,7 @@ int times_to_reach = 1;
 string ip_addr_used = ip_addr_localhost;
 string network = "default";
 deque<string> urls;
-int delay = 0;
+string delay = 0;
 string interface = "lo";
 
 // Create a global file containing all the results
