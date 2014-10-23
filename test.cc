@@ -18,23 +18,15 @@ int main(int argc, char* argv[]) {
 	}
 	set_delay();
 
-	string path_to_logs = delay+"/"+network+"/"+ip_addr_used;
 	
 	for (deque<string>::const_iterator it = urls.begin();it != urls.end(); ++it) {
 		
-		// *it = google/index.html and website = google.index.html
-		string website = *it;
-		replace(website.begin(), website.end(), '/', '.');
-
-		string name_path = path_to_logs+"/"+website;
-
-		string name = name_path;
-		replace(name.begin(), name.end(), '/', '.');
+		string name = delay+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
 
 		for (int i = 0; i < times_to_reach; ++i) {
 			for (int proto = http; proto <= http2s; ++proto) {
 				clean_cache();
-				string log_file = name + "_" + stringFromProtocol(proto) + ".log";
+				string log_file = name + "." + stringFromProtocol(proto) + ".log";
 				
 				// Launches Chromium
 				string command = chromium + set_options(proto) + get_url(proto) 
@@ -55,31 +47,25 @@ int main(int argc, char* argv[]) {
 }
 
 int concat_all_files() {
-	string path = delay+"/"+network+"/"+ip_addr_used+".txt";
-	replace(path.begin(), path.end(), '/', '.');
+	string path = delay+"."+network+"."+ip_addr_used+".txt";
+
 	ofstream outfile;
 	outfile.open(path.c_str(), ios_base::app);
-	outfile << "Website-Protocol http https h2c h2" << endl;
+	outfile << "Website-Protocol http https h2c h2\n";
 
-	for (deque<string>::const_iterator it = urls.begin(); 
-			it != urls.end(); ++it) {
-		string website = *it;
-		replace(website.begin(), website.end(), '/', '.');
-		string final_path = delay+"/"+network+"/"+ip_addr_used+"/"+website;
-		replace(final_path.begin(), final_path.end(), '/', '.');
-		printf("%s\n", final_path.c_str());
+	for (deque<string>::const_iterator it = urls.begin(); it != urls.end(); ++it) {
 
-		// Gets the webpage name
-		string token = website.substr(0, website.find("."));
-		outfile << token+" ";
+		// Remove the html at the end
+		outfile << slash_to_dot(*it).substr(0, slash_to_dot(*it).find("."));
 		
+		string final_path = delay+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
+		printf("%s\n", final_path.c_str());
 		ifstream myfile(final_path);
 		if (myfile.is_open()) {
 			string line;	
 			for (int i = 0; i < 4; ++i) {
 				getline(myfile, line);
-				double loading_time = strtod(line.c_str(), NULL);
-				outfile << loading_time << " ";
+				outfile << " " << strtod(line.c_str(), NULL);
 			}
 		}
 		outfile << endl;
@@ -275,4 +261,10 @@ void unset_delay() {
 	if (atoi(delay.c_str())!=0) {
 		execute("sudo tc qdisc del root dev "+interface);
 	}
+}
+
+string slash_to_dot(string input) {
+	string output = input;
+	replace(output.begin(), output.end(), '/', '.');
+	return output;
 }
