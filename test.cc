@@ -33,24 +33,24 @@ int main(int argc, char* argv[]) {
 		string name = name_path;
 		replace(name.begin(), name.end(), '/', '.');
 
-		for (int proto = http; proto <= http2s; ++proto) {
+		for (int i = 0; i < times_to_reach; ++i) {
+			for (int proto = http; proto <= http2s; ++proto) {
 
-			clean_cache();
-			string log_file = name + "_" + stringFromProtocol(proto) + ".log";
-			
-			// Log stderr to log_file, and everytime the command is run, we erase
-			// the content of the log_file (use of the '>' redirection).
-			string command = chromium + set_options(proto) + get_url(proto, ip_addr_used) 
-				+ *it + " > " + log_file + " 2>&1 " + "& sleep " + to_string(sleep_time)
-				+ " && " + kill_last_bg_process;
+				clean_cache();
+				string log_file = name + "_" + stringFromProtocol(proto) + ".log";
+				
+				// Log stderr to log_file, and everytime the command is run, we erase
+				// the content of the log_file (use of the '>' redirection).
+				string command = chromium + set_options(proto) + get_url(proto, ip_addr_used) 
+					+ *it + " > " + log_file + " 2>&1 " + "& sleep " + to_string(sleep_time)
+					+ " && " + kill_last_bg_process;
 
-			for (int i = 0; i < times_to_reach; ++i) {
 				execute(command);
 				grep_load_times(log_file);
-			}
-			
-			average_loading_time(log_file, proto, name_path);
+				
+				average_loading_time(log_file, proto, name_path);
 
+			}
 		}
 	}
 
