@@ -1,3 +1,4 @@
+# Method std::to_string() requires --std=c++0x compilation flag
 CXXFLAGS=-std=c++0x -Wall -Werror -O2
 OPTIONS=-Wall -Werror -O2
 

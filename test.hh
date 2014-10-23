@@ -71,12 +71,11 @@ int usage(char* argv[]);
 string get_url(int proto, string ip_addr_used);
 
 // Computing average loading times
-int average_loading_time(string log2_file,
+int average_loading_time(string log_file,
 	int proto, string name);
 
 // Grep log_file and outputs load times in log2_file
-int grep_load_times(string log_file, string log1_file,
-	string log2_file);
+int grep_load_times(string log_file);
 
 // Parses the arguments
 int deal_with_arguments(int argc, char* argv[]);

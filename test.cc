@@ -17,8 +17,6 @@ int main(int argc, char* argv[]) {
 	}
 	set_delay();
 
-	// Method std::to_string() requires --std=c++0x compilation flag
-	string sleep_cmd = "sleep " + to_string(sleep_time) + " ";
 
 	string path_to_logs = delay+"/"+network+"/"+ip_addr_used;
 	execute("mkdir -p "+path_to_logs);
@@ -39,21 +37,19 @@ int main(int argc, char* argv[]) {
 
 			clean_cache();
 			string log_file = name + "_" + stringFromProtocol(proto) + ".log";
-			string log_file_1 = "1_"+log_file;
-			string log_file_2 = "2_"+log_file;
 			
 			// Log stderr to log_file, and everytime the command is run, we erase
 			// the content of the log_file (use of the '>' redirection).
 			string command = chromium + set_options(proto) + get_url(proto, ip_addr_used) 
-				+ *it + " > " + log_file + " 2>&1 " + "& " + sleep_cmd + "&& "
-				+ kill_last_bg_process;
+				+ *it + " > " + log_file + " 2>&1 " + "& sleep " + to_string(sleep_time)
+				+ " && " + kill_last_bg_process;
 
 			for (int i = 0; i < times_to_reach; ++i) {
 				execute(command);
-				grep_load_times(log_file, log_file_1, log_file_2);
+				grep_load_times(log_file);
 			}
 			
-			average_loading_time(log_file_2, proto, name_path);
+			average_loading_time(log_file, proto, name_path);
 
 		}
 	}
@@ -154,8 +150,10 @@ string get_url(int proto, string ip_addr_used) {
 	return result;
 }
 
-int average_loading_time(string log_file_2,
+int average_loading_time(string log_file,
 	int proto, string name_path) {
+	
+	string log_file_2 = "2_"+log_file;
 
 	string line;	
 	ifstream myfile(log_file_2);
@@ -184,8 +182,11 @@ int average_loading_time(string log_file_2,
 	return 0;
 }
 
-int grep_load_times(string log_file, string log_file_1,
-	string log_file_2) {
+int grep_load_times(string log_file) {
+
+	string log_file_1 = "1_"+log_file;
+	string log_file_2 = "2_"+log_file;
+
 	// Stores first occurence of setNavigationStart.
 	// I have never seen more than one. Notice that we are
 	// using '>' character, not the append '>>'.
