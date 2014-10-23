@@ -9,6 +9,30 @@
 
 using namespace std;
 
+// Default values for arguments (see usage() to change these)
+int verbose = 0;							// No logging 
+int sleep_time = 20;						// Requests last 20 seconds
+int times_to_reach = 1;						// Only 1 request
+string ip_addr_used = ip_addr_localhost;	// Local tests
+string network = "default";					// Logging to "default" directory
+deque<string> urls;							// No URLs to reach
+string delay = "";							// Oms delay
+string interface = "lo";					// Loopback is default interface for delay
+
+// Protocols to use
+enum Protocol {
+	http = 0,
+	https = 1,
+	http2 = 2,
+	http2s = 3
+};
+
+// Gives the name of the protocol with the corresponding int
+static inline const char *stringFromProtocol(int proto) {
+	static const char *strings[] = {"http", "https", "http2", "http2s"};
+	return strings[proto];
+}
+
 // Chromium executable.
 string chromium_path = getenv("CHROMIUM_PATH");
 string chromium= chromium_path + "src/out/Debug/chrome ";
@@ -68,7 +92,7 @@ void LOG(const char* s);
 
 int usage(char* argv[]);
 
-string get_url(int proto, string ip_addr_used);
+string get_url(int proto);
 
 // Computing average loading times
 int average_loading_time(string log_file,
@@ -84,35 +108,13 @@ int check_arg(int argc, char* argv[], int i);
 // Execute command line 
 int execute(string s);
 
-// Global variables for arguments
-int verbose = 0;
-int sleep_time = 20;
-int times_to_reach = 1;
-string ip_addr_used = ip_addr_localhost;
-string network = "default";
-deque<string> urls;
-string delay = "";
-string interface = "lo";
-
 // Create a global file containing all the results
 int concat_all_files();
-
-// Protocols to use
-enum Protocol {
-	http = 0,
-	https = 1,
-	http2 = 2,
-	http2s = 3
-};
-
-static inline const char *stringFromProtocol(int proto) {
-	static const char *strings[] = {"http", "https", "http2", "http2s"};
-	return strings[proto];
-}
 
 // Clean up functions
 void clean_cache();
 void clean_logs();
 
+// Traffic Controller (TC) functions
 void set_delay();
 void unset_delay();

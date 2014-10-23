@@ -35,21 +35,17 @@ int main(int argc, char* argv[]) {
 
 		for (int i = 0; i < times_to_reach; ++i) {
 			for (int proto = http; proto <= http2s; ++proto) {
-
 				clean_cache();
 				string log_file = name + "_" + stringFromProtocol(proto) + ".log";
 				
-				// Log stderr to log_file, and everytime the command is run, we erase
-				// the content of the log_file (use of the '>' redirection).
-				string command = chromium + set_options(proto) + get_url(proto, ip_addr_used) 
+				// Launches Chromium
+				string command = chromium + set_options(proto) + get_url(proto) 
 					+ *it + " > " + log_file + " 2>&1 " + "& sleep " + to_string(sleep_time)
 					+ " && " + kill_last_bg_process;
-
 				execute(command);
-				grep_load_times(log_file);
-				
-				average_loading_time(log_file, proto, name_path);
 
+				grep_load_times(log_file);
+				average_loading_time(log_file, proto, name_path);
 			}
 		}
 	}
@@ -71,6 +67,8 @@ int concat_all_files() {
 		string website = *it;
 		replace(website.begin(), website.end(), '/', '.');
 		string final_path = delay+"/"+network+"/"+ip_addr_used+"/"+website;
+
+		// Gets the webpage name
 		string delimiter = ".";
 		string token = website.substr(0, website.find(delimiter));
 		outfile << token+" ";
@@ -135,19 +133,10 @@ int usage(char* argv[]) {
 	return 1;
 }
 
-string get_url(int proto, string ip_addr_used) {
-	string result = "";
-	if (proto == 1 or proto == 3) {
-		result += scheme_https;
-		result += ip_addr_used;
-		result += port_https;
-	}
-	else {
-		result += scheme_http;
-		result += ip_addr_used;
-		result += port_http;
-	}
-	return result;
+string get_url(int proto) {
+	if (proto%2==1) // case it's a secure protocol
+		return scheme_https+ip_addr_used+port_https;
+	return scheme_http+ip_addr_used+port_http;
 }
 
 int average_loading_time(string log_file,
@@ -210,6 +199,8 @@ int grep_load_times(string log_file) {
 }
 
 int check_arg(int argc, char* argv[], int i) {
+	if (argc == 1)
+		return 1;
 	if (strcmp(argv[i], "-v") == 0) {
 		verbose=1;
 		return 0;
@@ -250,9 +241,6 @@ int check_arg(int argc, char* argv[], int i) {
 }
 
 int deal_with_arguments(int argc, char* argv[]) {
-	if (argc == 1) {
-		return 1;
-	}
 	int result;
 	for (int i = 1; i < argc; ++i) {
 		if ((result=check_arg(argc, argv, i)) == -1) {
