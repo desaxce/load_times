@@ -117,35 +117,23 @@ string get_url(int proto) {
 	return scheme_http+ip_addr_used+port_http;
 }
 
-int average_loading_time(string log_file, int proto, string name) {
-	return 0;
-}
-
 int grep_load_times(string log_file, int proto, string name) {
 
-	string log_file_1 = "1_"+log_file;
 	string log_file_2 = "2_"+log_file;
 	string line;	
 
 	// Stores first occurence of setNavigationStart.
 	// I have never seen more than one. Notice that we are
 	// using '>' character, not the append '>>'.
-	execute("cat " + log_file + " | grep -m 1 \
-			^setNavigationStart > "	+ log_file_1);
-
 	// Stores first occurent of markLoadEventEnd starting
 	// from the end of the file (that's the purpose of the
 	// 'tac' command!). Notice that we are using append
 	// redirection '>>'; indeed we do not want to erase the
 	// first timing which came from setNavigationStart.
-	execute("tac " + log_file + " | grep -m 1 \
-			^markLoadEventEnd  >> "	+ log_file_1);
-	
-	// Stores the third column of the log_file_1 into 
-	// log_file_2: there should be numerous lines in log_file_2
-	// with a single number (double) on each line.
-	execute("cat " + log_file_1 + " | awk '{print $3}' >> " +
-			log_file_2);
+	execute("cat " + log_file + " | grep -m 1 \
+			^setNavigationStart | awk '{print $3}' > " + log_file_2
+			+" && " + "tac " + log_file + " | grep -m 1 \
+			^markLoadEventEnd | awk '{print $3}' >> "	+ log_file_2);
 
 	ifstream myfile(log_file_2);
 
@@ -153,17 +141,17 @@ int grep_load_times(string log_file, int proto, string name) {
 		ofstream outfile;
 		outfile.open(name.c_str(), ios_base::app);
 
-		double loading_time = 0;
+		double mean_loading_time = 0;
 
 		for (int i = 0; i < times_to_reach; ++i) {
 			getline(myfile, line);
 			double start = strtod(line.c_str(), NULL);
 			getline(myfile, line);
 			double end = strtod(line.c_str(), NULL);
-			loading_time += end-start;
+			mean_loading_time += end-start;
 		}
 		myfile.close();
-		outfile << loading_time/times_to_reach << endl;
+		outfile << mean_loading_time/times_to_reach << endl;
 		outfile.close();
 	}
 	else {
@@ -236,7 +224,7 @@ int execute(string s) {
 }
 
 void clean_logs() {
-	execute("rm -rf *.log");
+	execute("rm -rf *.log *.html");
 }
 
 void clean_cache() {
