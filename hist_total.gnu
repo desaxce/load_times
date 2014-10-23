@@ -3,12 +3,11 @@ gnuplot << EOF
 
 reset
 # unset key; set xtics nomirror; set ytics nomirror; set border front;
-http = "#000000"; https = "#5C5C5C"; h2c = "#D2691E"; h2 = "#8B4513"
-color(name) = (name eq "http") ? 0xff0000 \
-	: (name eq "https") ? 0x00ff00 \
-	: (name eq "h2c") ? 0x0000ff \
-	: (name eq "h2") ? 0xffff00 \
-	: (name eq "black") ? 0x000000 \
+http = "#000000"; https = "#595959"; h2c = "#BF4D00"; h2 = "#FFC000"
+color(name) = (name eq "http") ? 0x000000 \
+	: (name eq "https") ? 0x595959 \
+	: (name eq "h2c") ? 0xbf4d00 \
+	: (name eq "h2") ? 0xffc000 \
 	: int(rand(0)*0xffffff)
 
 set title "Page load performances"
