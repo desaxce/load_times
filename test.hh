@@ -9,6 +9,12 @@
 
 using namespace std;
 
+// Machine IP address on which we run our test
+string ip_addr_localhost = "127.0.0.1";
+string ip_addr_orange_server = "161.106.2.57";
+string ip_addr_vps = "198.50.151.105";
+string ip_addr_yiping = "172.20.36.138";
+
 // Default values for arguments (see usage() to change these)
 int verbose = 0;							// No logging 
 int sleep_time = 20;						// Requests last 20 seconds
@@ -74,12 +80,6 @@ string scheme_http = "http://";
 string scheme_https = "https://";
 string port_http = ":80/";
 string port_https = ":443/";
-
-// Machine IP address on which we run our test
-string ip_addr_localhost = "127.0.0.1";
-string ip_addr_orange_server = "161.106.2.57";
-string ip_addr_vps = "198.50.151.105";
-string ip_addr_yiping = "172.20.36.138";
 
 // Kills last launched background process. TERM option to close "friendly".
 string kill_last_bg_process = "kill -TERM $! ";

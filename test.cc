@@ -8,8 +8,7 @@
 // TODO: Change the way we compute the page loading time, use the onload event
 //		 fired by the browser
 // TODO: Remove bash calls to the minimum (that is chromium calls)
-// TODO: Remove the directory structure we have, logs should only appear
-//		 on the root of the system
+// TODO: Simplify the concat function
 int main(int argc, char* argv[]) {
 	
 	clean_logs();
@@ -19,10 +18,7 @@ int main(int argc, char* argv[]) {
 	}
 	set_delay();
 
-
 	string path_to_logs = delay+"/"+network+"/"+ip_addr_used;
-	execute("mkdir -p "+path_to_logs);
-
 	
 	for (deque<string>::const_iterator it = urls.begin();it != urls.end(); ++it) {
 		
@@ -47,7 +43,7 @@ int main(int argc, char* argv[]) {
 				execute(command);
 
 				grep_load_times(log_file);
-				average_loading_time(log_file, proto, name_path);
+				average_loading_time(log_file, proto, name);
 			}
 		}
 	}
@@ -60,6 +56,7 @@ int main(int argc, char* argv[]) {
 
 int concat_all_files() {
 	string path = delay+"/"+network+"/"+ip_addr_used+".txt";
+	replace(path.begin(), path.end(), '/', '.');
 	ofstream outfile;
 	outfile.open(path.c_str(), ios_base::app);
 	outfile << "Website-Protocol http https h2c h2" << endl;
@@ -69,10 +66,11 @@ int concat_all_files() {
 		string website = *it;
 		replace(website.begin(), website.end(), '/', '.');
 		string final_path = delay+"/"+network+"/"+ip_addr_used+"/"+website;
+		replace(final_path.begin(), final_path.end(), '/', '.');
+		printf("%s\n", final_path.c_str());
 
 		// Gets the webpage name
-		string delimiter = ".";
-		string token = website.substr(0, website.find(delimiter));
+		string token = website.substr(0, website.find("."));
 		outfile << token+" ";
 		
 		ifstream myfile(final_path);
@@ -142,7 +140,7 @@ string get_url(int proto) {
 }
 
 int average_loading_time(string log_file,
-	int proto, string name_path) {
+	int proto, string name) {
 	
 	string log_file_2 = "2_"+log_file;
 
@@ -151,7 +149,7 @@ int average_loading_time(string log_file,
 
 	if (myfile.is_open()) {
 		ofstream outfile;
-		outfile.open(name_path.c_str(), ios_base::app);
+		outfile.open(name.c_str(), ios_base::app);
 
 		double loading_time = 0;
 
