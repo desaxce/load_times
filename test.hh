@@ -92,7 +92,7 @@ int times_to_reach = 1;
 string ip_addr_used = ip_addr_localhost;
 string network = "default";
 deque<string> urls;
-string delay = "0ms";
+int delay = 0;
 string interface = "lo";
 
 // Create a global file containing all the results
@@ -114,3 +114,6 @@ static inline const char *stringFromProtocol(int proto) {
 // Clean up functions
 void clean_cache();
 void clean_logs();
+
+void set_delay();
+void unset_delay();
