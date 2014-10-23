@@ -8,6 +8,8 @@
 // TODO: Change the way we compute the page loading time, use the onload event
 //		 fired by the browser
 // TODO: Remove bash calls to the minimum (that is chromium calls)
+// TODO: Remove the directory structure we have, logs should only appear
+//		 on the root of the system
 int main(int argc, char* argv[]) {
 	
 	clean_logs();
