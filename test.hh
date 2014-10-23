@@ -94,12 +94,8 @@ int usage(char* argv[]);
 
 string get_url(int proto);
 
-// Computing average loading times
-int average_loading_time(string log_file,
-	int proto, string name);
-
 // Grep log_file and outputs load times in log2_file
-int grep_load_times(string log_file);
+int grep_load_times(string log_file, int proto, string name);
 
 // Parses the arguments
 int deal_with_arguments(int argc, char* argv[]);
@@ -118,3 +114,6 @@ void clean_logs();
 // Traffic Controller (TC) functions
 void set_delay();
 void unset_delay();
+
+// Transform all slashes in input string into dots
+string slash_to_dot(string input);

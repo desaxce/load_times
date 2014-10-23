@@ -12,13 +12,9 @@
 int main(int argc, char* argv[]) {
 	
 	clean_logs();
-
-	if (deal_with_arguments(argc, argv)) {
-		return usage(argv);
-	}
+	deal_with_arguments(argc, argv);
 	set_delay();
 
-	
 	for (deque<string>::const_iterator it = urls.begin();it != urls.end(); ++it) {
 		
 		string name = delay+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
@@ -33,9 +29,7 @@ int main(int argc, char* argv[]) {
 					+ *it + " > " + log_file + " 2>&1 " + "& sleep " + to_string(sleep_time)
 					+ " && " + kill_last_bg_process;
 				execute(command);
-
-				grep_load_times(log_file);
-				average_loading_time(log_file, proto, name);
+				grep_load_times(log_file, proto, name);
 			}
 		}
 	}
@@ -47,31 +41,29 @@ int main(int argc, char* argv[]) {
 }
 
 int concat_all_files() {
-	string path = delay+"."+network+"."+ip_addr_used+".txt";
 
-	ofstream outfile;
-	outfile.open(path.c_str(), ios_base::app);
-	outfile << "Website-Protocol http https h2c h2\n";
+	ofstream of;
+	of.open(delay+"."+network+"."+ip_addr_used+".txt", ios_base::app);
+	of << "Website\\Protocol http https http2 http2s\n";
 
 	for (deque<string>::const_iterator it = urls.begin(); it != urls.end(); ++it) {
 
-		// Remove the html at the end
-		outfile << slash_to_dot(*it).substr(0, slash_to_dot(*it).find("."));
+		// Remove the .html at the end
+		of << slash_to_dot(*it).substr(0, slash_to_dot(*it).find("."));
 		
 		string final_path = delay+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
-		printf("%s\n", final_path.c_str());
 		ifstream myfile(final_path);
 		if (myfile.is_open()) {
 			string line;	
-			for (int i = 0; i < 4; ++i) {
+			for (int i = 0; i < 4; ++i) { // 4 lines for 4 protocols
 				getline(myfile, line);
-				outfile << " " << strtod(line.c_str(), NULL);
+				of << " " << strtod(line.c_str(), NULL);
 			}
 		}
-		outfile << endl;
+		of << endl;
 		myfile.close();
 	}
-	outfile.close();
+	of.close();
 
 	return 0;
 }
@@ -125,12 +117,36 @@ string get_url(int proto) {
 	return scheme_http+ip_addr_used+port_http;
 }
 
-int average_loading_time(string log_file,
-	int proto, string name) {
-	
-	string log_file_2 = "2_"+log_file;
+int average_loading_time(string log_file, int proto, string name) {
+	return 0;
+}
 
+int grep_load_times(string log_file, int proto, string name) {
+
+	string log_file_1 = "1_"+log_file;
+	string log_file_2 = "2_"+log_file;
 	string line;	
+
+	// Stores first occurence of setNavigationStart.
+	// I have never seen more than one. Notice that we are
+	// using '>' character, not the append '>>'.
+	execute("cat " + log_file + " | grep -m 1 \
+			^setNavigationStart > "	+ log_file_1);
+
+	// Stores first occurent of markLoadEventEnd starting
+	// from the end of the file (that's the purpose of the
+	// 'tac' command!). Notice that we are using append
+	// redirection '>>'; indeed we do not want to erase the
+	// first timing which came from setNavigationStart.
+	execute("tac " + log_file + " | grep -m 1 \
+			^markLoadEventEnd  >> "	+ log_file_1);
+	
+	// Stores the third column of the log_file_1 into 
+	// log_file_2: there should be numerous lines in log_file_2
+	// with a single number (double) on each line.
+	execute("cat " + log_file_1 + " | awk '{print $3}' >> " +
+			log_file_2);
+
 	ifstream myfile(log_file_2);
 
 	if (myfile.is_open()) {
@@ -154,39 +170,11 @@ int average_loading_time(string log_file,
 		printf("Unable to open file\n");
 		return 1;
 	}
-	return 0;
-}
-
-int grep_load_times(string log_file) {
-
-	string log_file_1 = "1_"+log_file;
-	string log_file_2 = "2_"+log_file;
-
-	// Stores first occurence of setNavigationStart.
-	// I have never seen more than one. Notice that we are
-	// using '>' character, not the append '>>'.
-	execute("cat " + log_file + " | grep -m 1 \
-			^setNavigationStart > "	+ log_file_1);
-
-	// Stores first occurent of markLoadEventEnd starting
-	// from the end of the file (that's the purpose of the
-	// 'tac' command!). Notice that we are using append
-	// redirection '>>'; indeed we do not want to erase the
-	// first timing which came from setNavigationStart.
-	execute("tac " + log_file + " | grep -m 1 \
-			^markLoadEventEnd  >> "	+ log_file_1);
 	
-	// Stores the third column of the log_file_1 into 
-	// log_file_2: there should be numerous lines in log_file_2
-	// with a single number (double) on each line.
-	execute("cat " + log_file_1 + " | awk '{print $3}' >> " +
-			log_file_2);
 	return 0;
 }
 
 int check_arg(int argc, char* argv[], int i) {
-	if (argc == 1)
-		return 1;
 	if (strcmp(argv[i], "-v") == 0) {
 		verbose=1;
 		return 0;
@@ -228,9 +216,14 @@ int check_arg(int argc, char* argv[], int i) {
 
 int deal_with_arguments(int argc, char* argv[]) {
 	int result;
+	if (argc == 1) {
+		usage(argv);
+		exit(1);
+	}
 	for (int i = 1; i < argc; ++i) {
 		if ((result=check_arg(argc, argv, i)) == -1) {
-			return 1;
+			usage(argv);
+			exit(1);
 		}
 		i += result;
 	}
@@ -268,3 +261,4 @@ string slash_to_dot(string input) {
 	replace(output.begin(), output.end(), '/', '.');
 	return output;
 }
+

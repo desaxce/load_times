@@ -12,7 +12,7 @@ color(name) = (name eq "http") ? 0x000000 \
 
 set title "Page load performances"
 set auto x
-# set grid
+set grid
 set xlabel "Webpage"
 set ylabel "Time in seconds"
 
