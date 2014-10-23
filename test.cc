@@ -8,7 +8,7 @@
 // TODO: Change the way we compute the page loading time, use the onload event
 //		 fired by the browser
 // TODO: Remove bash calls to the minimum (that is chromium calls)
-// TODO: Simplify the concat function
+//		 There is still one call to parse the logs
 int main(int argc, char* argv[]) {
 	
 	clean_logs();
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 					+ *it + " > " + log_file + " 2>&1 " + "& sleep " + to_string(sleep_time)
 					+ " && " + kill_last_bg_process;
 				execute(command);
-				grep_load_times(log_file, proto, name);
+				grep_load_times(proto, name);
 			}
 		}
 	}
@@ -117,8 +117,9 @@ string get_url(int proto) {
 	return scheme_http+ip_addr_used+port_http;
 }
 
-int grep_load_times(string log_file, int proto, string name) {
+int grep_load_times(int proto, string name) {
 
+	string log_file = name + "." + stringFromProtocol(proto) + ".log";
 	string log_file_2 = "2_"+log_file;
 	string line;	
 

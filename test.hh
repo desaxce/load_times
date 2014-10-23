@@ -95,7 +95,7 @@ int usage(char* argv[]);
 string get_url(int proto);
 
 // Grep log_file and outputs load times in log2_file
-int grep_load_times(string log_file, int proto, string name);
+int grep_load_times(int proto, string name);
 
 // Parses the arguments
 int deal_with_arguments(int argc, char* argv[]);
