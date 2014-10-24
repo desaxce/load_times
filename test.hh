@@ -23,6 +23,7 @@ string ip_addr_used = ip_addr_localhost;	// Local tests
 string network = "default";					// Logging to "default" directory
 deque<string> urls;							// No URLs to reach
 string delay = "";							// Oms delay
+string losses = "";							// O% losses
 string interface = "lo";					// Loopback is default interface for delay
 
 // Protocols to use
@@ -112,8 +113,8 @@ void clean_cache();
 void clean_logs();
 
 // Traffic Controller (TC) functions
-void set_delay();
-void unset_delay();
+void set_delay_and_losses();
+void unset_delay_and_losses();
 
 // Transform all slashes in input string into dots
 string slash_to_dot(string input);

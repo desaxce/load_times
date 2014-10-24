@@ -9,15 +9,16 @@
 //		 fired by the browser
 // TODO: Remove bash calls to the minimum (that is chromium calls)
 //		 There is still one call to parse the logs
+// TODO: Add packet losses
 int main(int argc, char* argv[]) {
 	
 	clean_logs();
 	deal_with_arguments(argc, argv);
-	set_delay();
+	set_delay_and_losses();
 
 	for (deque<string>::const_iterator it = urls.begin();it != urls.end(); ++it) {
 		
-		string name = delay+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
+		string name = delay+"."+losses+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
 
 		for (int i = 0; i < times_to_reach; ++i) {
 			for (int proto = http; proto <= http2s; ++proto) {
@@ -35,7 +36,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	concat_all_files();
-	unset_delay();
+	unset_delay_and_losses();
 	clean_logs();
 	return 0;
 }
@@ -43,7 +44,7 @@ int main(int argc, char* argv[]) {
 int concat_all_files() {
 
 	ofstream of;
-	of.open(delay+"."+network+"."+ip_addr_used+".txt", ios_base::app);
+	of.open(delay+"."+losses+"."+network+"."+ip_addr_used+".txt", ios_base::app);
 	of << "Website\\Protocol http https http2 http2s\n";
 
 	for (deque<string>::const_iterator it = urls.begin(); it != urls.end(); ++it) {
@@ -51,7 +52,7 @@ int concat_all_files() {
 		// Remove the .html at the end
 		of << slash_to_dot(*it).substr(0, slash_to_dot(*it).find("."));
 		
-		string final_path = delay+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
+		string final_path = delay+"."+losses+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
 		ifstream myfile(final_path);
 		if (myfile.is_open()) {
 			string line;	
@@ -186,8 +187,15 @@ int check_arg(int argc, char* argv[], int i) {
 	}
 	else if (strcmp(argv[i], "-d") == 0) {
 		delay = argv[i+1];
-		interface = argv[i+2];
-		return 2;
+		return 1;
+	}
+	else if (strcmp(argv[i], "-i") == 0) {
+		interface = argv[i+1];
+		return 1;
+	}
+	else if (strcmp(argv[i], "-l") == 0) {
+		losses = argv[i+1];
+		return 1;
 	}
 	else if (strcmp(argv[i], "-r") == 0) {
 		int number_of_urls = 0;
@@ -232,15 +240,22 @@ void clean_cache() {
 	execute("rm -rf ~/.cache/chromium");
 }
 
-void set_delay() {
+void set_delay_and_losses() {
 	if (atoi(delay.c_str())!=0) {
-		execute("sudo tc qdisc add dev "+interface+
-				 " root netem delay "+delay+"ms");
+		if (atoi(losses.c_str())!=0) {
+			execute("sudo tc qdisc add dev "+interface+
+					 " root netem delay "+delay+"ms loss "
+					 +losses+"%");
+		}
+		else {
+			execute("sudo tc qdisc add dev "+interface+
+					 " root netem delay "+delay+"ms");
+		}
 	}
 }
 
-void unset_delay() {
-	if (atoi(delay.c_str())!=0) {
+void unset_delay_and_losses() {
+	if (atoi(delay.c_str())!=0 or atoi(losses.c_str())!=0) {
 		execute("sudo tc qdisc del root dev "+interface);
 	}
 }
