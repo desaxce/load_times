@@ -51,16 +51,32 @@ int concat_all_files() {
 
 		// Remove the .html at the end
 		of << slash_to_dot(*it).substr(0, slash_to_dot(*it).find("."));
+
+		ofstream delay_loss_ratio;
+		delay_loss_ratio.open(network+"."+ip_addr_used+"."+slash_to_dot(*it).substr(0, slash_to_dot(*it).find("."))+".txt", ios_base::app);
 		
 		string final_path = delay+"."+losses+"."+network+"."+ip_addr_used+"."+slash_to_dot(*it);
 		ifstream myfile(final_path);
 		if (myfile.is_open()) {
-			string line;	
-			for (int i = 0; i < 4; ++i) { // 4 lines for 4 protocols
-				getline(myfile, line);
-				of << " " << strtod(line.c_str(), NULL);
-			}
+			string line1, line2, line3, line4;
+
+			getline(myfile, line1);
+			getline(myfile, line2);
+			getline(myfile, line3);
+			getline(myfile, line4);
+
+			of << " " << strtod(line1.c_str(), NULL);
+			of << " " << strtod(line2.c_str(), NULL);
+			of << " " << strtod(line3.c_str(), NULL);
+			of << " " << strtod(line4.c_str(), NULL);
+			
+			double ratio = strtod(line3.c_str(), NULL)/strtod(line1.c_str(), NULL);
+			double ratios = strtod(line4.c_str(), NULL)/strtod(line2.c_str(), NULL);
+
+			delay_loss_ratio << delay << " " << losses << " " << ratio << " " << ratios << endl;
 		}
+
+		delay_loss_ratio.close();
 		of << endl;
 		myfile.close();
 	}
@@ -241,23 +257,13 @@ void clean_cache() {
 }
 
 void set_delay_and_losses() {
-	if (atoi(delay.c_str())!=0) {
-		if (atoi(losses.c_str())!=0) {
-			execute("sudo tc qdisc add dev "+interface+
-					 " root netem delay "+delay+"ms loss "
-					 +losses+"%");
-		}
-		else {
-			execute("sudo tc qdisc add dev "+interface+
-					 " root netem delay "+delay+"ms");
-		}
-	}
+	execute("sudo tc qdisc add dev "+interface+
+			 " root netem delay "+delay+"ms loss "
+			 +losses+"%");
 }
 
 void unset_delay_and_losses() {
-	if (atoi(delay.c_str())!=0 or atoi(losses.c_str())!=0) {
-		execute("sudo tc qdisc del root dev "+interface);
-	}
+	execute("sudo tc qdisc del root dev "+interface);
 }
 
 string slash_to_dot(string input) {
