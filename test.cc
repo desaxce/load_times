@@ -9,6 +9,8 @@
 //		 fired by the browser
 // TODO: Remove bash calls to the minimum (that is chromium calls)
 //		 There is still one call to parse the logs
+// TODO: Before any testing, there should be at least one or two calls to chromium
+//		 to ensure that it's loading correctly and fast enough
 
 int main(int argc, char* argv[]) {
 	
