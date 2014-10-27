@@ -9,7 +9,7 @@
 //		 fired by the browser
 // TODO: Remove bash calls to the minimum (that is chromium calls)
 //		 There is still one call to parse the logs
-// TODO: Add packet losses
+
 int main(int argc, char* argv[]) {
 	
 	clean_logs();
@@ -65,10 +65,8 @@ int concat_all_files() {
 			getline(myfile, line3);
 			getline(myfile, line4);
 
-			of << " " << strtod(line1.c_str(), NULL);
-			of << " " << strtod(line2.c_str(), NULL);
-			of << " " << strtod(line3.c_str(), NULL);
-			of << " " << strtod(line4.c_str(), NULL);
+			of << " " << strtod(line1.c_str(), NULL) << " " << strtod(line2.c_str(), NULL)
+			   << " " << strtod(line3.c_str(), NULL) << " " << strtod(line4.c_str(), NULL);
 			
 			double ratio = strtod(line3.c_str(), NULL)/strtod(line1.c_str(), NULL);
 			double ratios = strtod(line4.c_str(), NULL)/strtod(line2.c_str(), NULL);
