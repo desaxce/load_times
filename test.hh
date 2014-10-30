@@ -42,7 +42,7 @@ static inline const char *stringFromProtocol(int proto) {
 
 // Chromium executable.
 string chromium_path = getenv("CHROMIUM_PATH");
-string chromium= chromium_path + "Release/chrome ";
+string chromium= chromium_path + "Debug/chrome ";
 
 // Incognito mode: no caching and no automatic connection to gstatic.com
 // and google.com + execute as root!
