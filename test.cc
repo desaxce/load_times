@@ -180,6 +180,7 @@ int grep_load_times(int proto, string name) {
 	return 0;
 }
 
+// TODO: Add the long versions of the options
 int check_arg(int argc, char* argv[], int i) {
 	if (strcmp(argv[i], "-v") == 0) {
 		verbose=1;
