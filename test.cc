@@ -3,12 +3,11 @@
 	#define TEST_HH
 #endif
 
-// TODO: Split this function in several parts: make it modular
 // TODO: Handle the fact that you have to be root to change delay/latency
 // TODO: Change the way we compute the page loading time, use the onload event
-//		 fired by the browser
+//		 fired by the browser: however that would not work with real website.
 // TODO: Remove bash calls to the minimum (that is chromium calls)
-//		 There is still one call to parse the logs
+//		 There is still one call to parse the logs.
 // TODO: Before any testing, there should be at least one or two calls to chromium
 //		 to ensure that it's loading correctly and fast enough
 
@@ -17,6 +16,9 @@ int main(int argc, char* argv[]) {
 	clean_logs();
 	deal_with_arguments(argc, argv);
 	set_delay_and_losses();
+
+	// Launch Chromium to warm up...
+	execute(chromium + "& sleep 60 && " + kill_last_bg_process);
 
 	for (deque<string>::const_iterator it = urls.begin();it != urls.end(); ++it) {
 		
@@ -89,6 +91,8 @@ string set_options(int proto) {
 	string result = "";
 	if (set_incognito)
 		result += incognito;
+	if (set_no_browser_check)
+		result += no_browser_check;
 	if (set_no_extensions)
 		result += no_extensions;
 	if (set_ignore_certificate_errors)
@@ -118,13 +122,13 @@ void LOG(const char* s) {
 }
 
 int usage(char* argv[]) {
-		printf("Usage: %s \t[-v] \
+		printf("Usage: %s \t[-v, --verbose] \
 		\n\t\t--ip <IP address> \
-		\n\t\t-s <time to wait> \
-		\n\t\t-t <times to reach> \
-		\n\t\t-d <delay in ms> <interface> \
+		\n\t\t-s, --sleep <time to wait> \
+		\n\t\t-t, --times-to-reach <times to reach> \
+		\n\t\t-d, --delay <delay in ms> <interface> \
 		\n\t\t-C <target directory \
-		\n\t\t-r <webpage1.html webpage2.html ...>\n", argv[0]);
+		\n\t\t-r, --reach <webpage1.html webpage2.html ...>\n", argv[0]);
 	return 1;
 }
 
@@ -180,9 +184,8 @@ int grep_load_times(int proto, string name) {
 	return 0;
 }
 
-// TODO: Add the long versions of the options
 int check_arg(int argc, char* argv[], int i) {
-	if (strcmp(argv[i], "-v") == 0) {
+	if (strcmp(argv[i], "-v") == 0 or strcmp(argv[i], "--verbose") == 0) {
 		verbose=1;
 		return 0;
 	}
@@ -190,11 +193,11 @@ int check_arg(int argc, char* argv[], int i) {
 		ip_addr_used = argv[i+1];
 		return 1;
 	}
-	else if (strcmp(argv[i], "-s") == 0) {
+	else if (strcmp(argv[i], "-s") == 0 or strcmp(argv[i], "--sleep") == 0) {
 		sleep_time = atoi(argv[i+1]);
 		return 1;
 	}
-	else if (strcmp(argv[i], "-t") == 0) {
+	else if (strcmp(argv[i], "-t") == 0 or strcmp(argv[i], "--times-to-reach") == 0) {
 		times_to_reach = atoi(argv[i+1]);
 		return 1;
 	}
@@ -202,19 +205,19 @@ int check_arg(int argc, char* argv[], int i) {
 		network = argv[i+1];
 		return 1;
 	}
-	else if (strcmp(argv[i], "-d") == 0) {
+	else if (strcmp(argv[i], "-d") == 0 or strcmp(argv[i], "--delay") == 0) {
 		delay = argv[i+1];
 		return 1;
 	}
-	else if (strcmp(argv[i], "-i") == 0) {
+	else if (strcmp(argv[i], "-i") == 0 or strcmp(argv[i], "--interface") == 0) {
 		interface = argv[i+1];
 		return 1;
 	}
-	else if (strcmp(argv[i], "-l") == 0) {
+	else if (strcmp(argv[i], "-l") == 0 or strcmp(argv[i], "--losses") == 0) {
 		losses = argv[i+1];
 		return 1;
 	}
-	else if (strcmp(argv[i], "-r") == 0) {
+	else if (strcmp(argv[i], "-r") == 0 or strcmp(argv[i], "--reach") == 0) {
 		int number_of_urls = 0;
 		while (++i < argc) {
 			number_of_urls++;

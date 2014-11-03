@@ -27,8 +27,11 @@
 *.out
 *.app
 
-# Ignore log files and annoying stuff
+# Log files and annoying stuff
 *.log
 *~
 *.swp
 *.res
+
+# Results are stored in txt files
+*.txt

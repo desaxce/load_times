@@ -40,14 +40,18 @@ static inline const char *stringFromProtocol(int proto) {
 	return strings[proto];
 }
 
-// Chromium executable.
-// string chromium_path = getenv("CHROMIUM_PATH"); // Not needed anymore
+// Chromium executable: the two repositories load_times and chromium
+// need to be cloned at the same location; else it cannot work.
 string chromium= "../chromium/chromium-browser/chromium-browser ";
 
 // Incognito mode: no caching and no automatic connection to gstatic.com
 // and google.com + execute as root!
 int set_incognito = 1;
-string incognito = "--incognito --user-data-dir ";
+string incognito = "--incognito ";//--user-data-dir ";
+
+// No default browser check on startup.
+int set_no_browser_check = 1;
+string no_browser_check = "--no-default-browser-check ";
 
 // No loading of chrome://extensions/.../background_page.html.
 int set_no_extensions = 1;
