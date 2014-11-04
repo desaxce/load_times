@@ -2,7 +2,7 @@
 CXXFLAGS=-std=c++0x -Wall -Werror -O2
 OPTIONS=-Wall -Werror -O2
 
-test: test.cc
+test: test.cc test.hh
 
 .PHONY: clean
 
