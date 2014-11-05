@@ -12,7 +12,6 @@ using namespace std;
 // Machine IP address on which we run our test
 string ip_addr_localhost = "127.0.0.1";
 string ip_addr_orange_server = "161.106.2.57";
-string ip_addr_vps = "198.50.151.105";
 string ip_addr_yiping = "172.20.36.138";
 
 // Default values for arguments (see usage() to change these)
@@ -20,7 +19,7 @@ int verbose = 0;							// No logging
 int sleep_time = 20;						// Requests last 20 seconds
 int times_to_reach = 1;						// Only 1 request
 string ip_addr_used = ip_addr_localhost;	// Local tests
-string network = "default";					// Logging to "default" directory
+string platform = "localhost";				// Logging to "default" directory
 deque<string> urls;							// No URLs to reach
 string delay = "0";							// Oms delay
 string losses = "0";						// O% losses
@@ -122,3 +121,6 @@ void unset_delay_and_losses();
 
 // Transform all slashes in input string into dots
 string slash_to_dot(string input);
+
+// Compute recap loading times
+int recap(int proto, string name);
