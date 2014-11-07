@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
 	concat_all_files();
 	unset_delay_and_losses();
-	//clean_logs();
+	clean_logs();
 	return 0;
 }
 
@@ -91,11 +91,17 @@ string set_options(int proto) {
 	switch (proto) {
 		case http2s:
 			result += enable_spdy4;
-			result += h2;
+			//Below line had to be removed because you cannot interact with real
+			//websites with this (dunno why)
+			//result += h2;
 			break;
 		case http2:
 			result += enable_spdy4;
 			result += h2c;
+			break;
+		case http:
+		case https:
+			result += "--use-spdy=off ";
 			break;
 		default:
 			break;
