@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 	set_delay_and_losses();
 
 	// Launch Chromium to warm up...
-	execute(chromium + "--no-sandbox --user-data-dir & sleep 60 && " + kill_last_bg_process);
+	execute(chromium + " & sleep 60 && " + kill_last_bg_process);
 
 	for (deque<string>::const_iterator it = urls.begin();it != urls.end(); ++it) {
 		

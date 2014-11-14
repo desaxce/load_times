@@ -46,7 +46,7 @@ string chromium= "../chromium/chromium-browser/chromium-browser ";
 // Incognito mode: no caching and no automatic connection to gstatic.com
 // and google.com + execute as root!
 int set_incognito = 1;
-string incognito = "--incognito --user-data-dir --no-sandbox ";
+string incognito = "--incognito";// --no-sandbox --user-data-dir ";
 
 // No default browser check on startup.
 int set_no_browser_check = 1;
@@ -86,7 +86,7 @@ string port_http = ":80/";
 string port_https = ":443/";
 
 // Kills last launched background process. TERM option to close "friendly".
-string kill_last_bg_process = "kill -TERM $! ";
+string kill_last_bg_process = "kill $!";
 
 // Sets options
 string set_options(int proto);
