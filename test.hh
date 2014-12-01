@@ -46,7 +46,7 @@ string chromium= "../chromium/chromium-browser/chromium-browser ";
 // Incognito mode: no caching and no automatic connection to gstatic.com
 // and google.com + execute as root!
 int set_incognito = 1;
-string incognito = "--incognito";// --no-sandbox --user-data-dir ";
+string incognito = "--incognito --no-sandbox --user-data-dir "; /* --incognito */
 
 // No default browser check on startup.
 int set_no_browser_check = 1;
