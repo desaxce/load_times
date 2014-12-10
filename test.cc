@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 
 		for (int i = 0; i < times_to_reach; ++i) {
 			for (int proto = http; proto <= http2s; ++proto) {
-//			if (proto%2==1) {
+			//if (proto%2==1) {
 				clean_cache();
 				string log_file = name + "." + stringFromProtocol(proto) + ".log";
 				
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 					+ " && " + kill_last_bg_process;
 				execute(command);
 				grep_load_times(proto, name);
-//			}
+			//}
 			}
 		}
 		for (int proto = http; proto <= http2s; ++proto) {
