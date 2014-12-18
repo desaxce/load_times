@@ -96,7 +96,7 @@ string set_options(int proto) {
 		case http2s:
 			result += enable_spdy4;
 			//Below line had to be removed because you cannot interact with real
-			//websites with this (dunno why)
+			//websites with this (it does not appear as h2-14)
 			//result += h2;
 			break;
 		case http2:
